@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="transparent_">#00FFFFFF</color>
+    <color name="black">#FF303030</color>
+    <color name="dark_grey_blue">#324050</color>
+    <color name="input_text_grey">#939393</color>
+    <color name="input_border_grey">#E6EBED</color>
+    <color name="very_light_grey">#F5F5F5</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="contrast_blue">#4571C6</color>
+    <color name="light_blue">#B3D6EA</color>
+    <color name="transparent">#00FFFFFF</color>
+</resources>

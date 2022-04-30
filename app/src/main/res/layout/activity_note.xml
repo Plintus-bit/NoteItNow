@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Note">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/very_light_grey">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp">
+
+                <ImageButton
+                    android:id="@+id/write_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_write"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                <ImageButton
+                    android:id="@+id/draw_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_draw"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                <ImageButton
+                    android:id="@+id/eraser_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_eraser"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                <ImageButton
+                    android:id="@+id/text_color_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_text_color_place"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                <ImageButton
+                    android:id="@+id/draw_color_btn"
+                    style="@style/PanelIcon"
+                    android:background="@drawable/ic_place_for_current_color_for_draw"
+                    app:srcCompat="@drawable/ic_current_color_for_draw"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck">
+
+                </ImageButton>
+
+                <ImageButton
+                    android:id="@+id/bg_change_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_bg_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            style="@style/NoteStyle"
+            android:orientation="horizontal"
+            android:padding="14dp">
+
+            <EditText
+                android:id="@+id/note_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/icons_bg"
+                android:ems="10"
+                android:textSize="19sp"
+                android:hint="@string/note_name"
+                android:inputType="textPersonName"
+                android:textColor="@color/black"
+                tools:ignore="TouchTargetSizeCheck"/>
+
+            <ImageButton
+                android:id="@+id/pin_btn"
+                style="@style/IconNotePin"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/ic_clip_icon"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/main_place_rl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <EditText
+                android:id="@+id/note_main_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/icons_bg"
+                android:ems="10"
+                android:gravity="start"
+                android:hint="Дорогой дневник.."
+                android:inputType="textMultiLine"
+                android:minHeight="520dp"
+                android:paddingBottom="120dp"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

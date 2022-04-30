@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageButton
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/edit_btn"
+    style="@style/IconSpecialPinSize"
+    android:layout_weight="3"
+    app:srcCompat="@drawable/ic_edit_icon"
+    android:contentDescription="@string/edit_btn_decript"
+    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Note It Now</string>
+    <string name="search_bar">Я хочу найти...</string>
+    <string name="default_note_name">Название заметки</string>
+    <string name="pin_btn_decript">Пин заметки</string>
+    <string name="edit_btn_decript">Редактировать заметку</string>
+    <string name="delete_btn_decript">Удалить заметку</string>
+    <string name="add_btn_decript">Добавить заметку</string>
+    <string name="note_name">Название заметки</string>
+</resources>

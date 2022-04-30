@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageButton
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pin_btn"
+    android:background="@drawable/icons_bg"
+    android:layout_height="wrap_content"
+    android:layout_width="24dp"
+    android:layout_marginEnd="18dp"
+    android:layout_marginStart="8dp"
+    android:layout_weight="1"
+    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck"
+    android:contentDescription="@string/pin_btn_decript" />

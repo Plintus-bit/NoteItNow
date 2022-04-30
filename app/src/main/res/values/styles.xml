@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextStyle" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="HintStyles" parent="TextStyle">
+        <item name="android:textColorHint">@color/input_text_grey</item>
+    </style>
+
+    <style name="NoteStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:background">@drawable/note_bg</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="IconMainPinSize">
+        <item name="android:background">@drawable/icons_bg</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_marginRight">18dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+    </style>
+
+    <style name="IconSpecialPinSize">
+        <item name="android:background">@drawable/icons_bg</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_marginRight">4dp</item>
+    </style>
+
+    <style name="IconNotePin">
+        <item name="android:background">@drawable/icons_bg</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+
+    <style name="PanelIcon">
+        <item name="android:layout_width">46dp</item>
+        <item name="android:layout_height">46dp</item>
+        <item name="android:background">@drawable/icons_bg</item>
+        <item name="android:padding">6dp</item>
+        <item name="android:layout_marginEnd">2dp</item>
+    </style>
+
+    <style name="ActionBarStyle" parent="Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="FloatingActBtnStyle" parent="Widget.Design.FloatingActionButton">
+        <item name="android:backgroundTint">@color/contrast_blue</item>
+    </style>
+
+</resources>

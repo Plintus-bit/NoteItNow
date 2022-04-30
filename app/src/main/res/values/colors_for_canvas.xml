@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mono_total_black">#171717</color>
+    <color name="mono_dark_gray">#616161</color>
+    <color name="mono_middle_grey">#999999</color>
+    <color name="mono_medium_grey">#CACACA</color>
+    <color name="mono_grey">#E3E3E3</color>
+    <color name="mono_light_grey">#EBEBEB</color>
+    <color name="mono_total_white">#FFFFFF</color>
+
+    <color name="blue_total_black">#1E1F25</color>
+    <color name="blue_dark_gray">#4D5459</color>
+    <color name="blue_middle_grey">#768398</color>
+    <color name="blue_medium_grey">#A6B3C7</color>
+    <color name="blue_grey">#C7D1DC</color>
+    <color name="blue_light_grey">#DBE2ED</color>
+    <color name="blue_total_white">#EBEFF5</color>
+
+    <color name="soft_pink">#FFA4BA</color>
+    <color name="soft_peach">#FFB5AB</color>
+    <color name="soft_orange">#FFBA7A</color>
+    <color name="soft_lemon">#FFF2C3</color>
+    <color name="soft_lime">#E4FFAA</color>
+    <color name="soft_grass">#A2E9A5</color>
+    <color name="soft_cian">#A4D3FF</color>
+
+    <color name="shadow_red">#DB3131</color>
+    <color name="shadow_deep_blue">#2C69A1</color>
+    <color name="shadow_purple">#6143A1</color>
+    <color name="shadow_magenta">#E53092</color>
+    <color name="shadow_sea">#4FE2B6</color>
+    <color name="shadow_darkest_blue">#151439</color>
+    <color name="shadow_brown">#6D3734</color>
+
+    <color name="dark_grass">#66A669</color>
+    <color name="dark_night_sky">#5B6CAB</color>
+    <color name="dark_sky">#6BA8CB</color>
+    <color name="dark_sea_wave">#6CC3BE</color>
+    <color name="dark_pink">#D883CF</color>
+    <color name="dark_orange">#EA8D65</color>
+    <color name="dark_tomato">#EE7261</color>
+
+    <color name="pastel_mint">#B0FFEC</color>
+    <color name="pastel_lime">#C6FFBD</color>
+    <color name="pastel_lavender">#C6C8FF</color>
+    <color name="pastel_sky">#CBEFFF</color>
+    <color name="pastel_lilac">#EBC0FF</color>
+    <color name="pastel_pink_lilac">#FFC9F0</color>
+    <color name="pastel_orange">#FFD6BE</color>
+
+</resources>

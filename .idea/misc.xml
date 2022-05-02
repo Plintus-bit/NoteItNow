@@ -23,6 +23,8 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_beach_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_bed_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_beer_icon.xml" value="0.132" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_bg_for_text_color_place.xml" value="0.3225" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_bg_for_text_color_place_1.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_bg_icon.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_big_finger_down_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_big_finger_up_icon.xml" value="0.132" />
@@ -46,6 +48,7 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_clip_icon.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_cloud_rain_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_comment_info_icon.xml" value="0.132" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_copic.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_credit_card_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_current_color_for_draw.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_draw.xml" value="0.3225" />
@@ -62,7 +65,9 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_key_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_launcher_background.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_lock_icon.xml" value="0.132" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_make_draw.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_map_marker_home_icon.xml" value="0.132" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_marker_text.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_medal_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_paw_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_pineapple_icon.xml" value="0.132" />
@@ -76,6 +81,7 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_stats_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_subway_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_text_color_place.xml" value="0.196" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_text_color_place_1.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_thumbtack_pin_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_time_quarter_to_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_time_to_eat_icon.xml" value="0.132" />
@@ -90,13 +96,17 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/not_active_search_bar.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/note_bg.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/search_bar.xml" value="0.2985" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_canvas.xml" value="0.22083333333333333" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_main.xml" value="0.2208955223880597" />
-        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_note.xml" value="0.25" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_note.xml" value="0.33" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/note_delete_pin_layout.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/note_edit_pin_layout.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/note_layout.xml" value="0.17291666666666666" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/note_name_layout.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/pin_btn_layout.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/popup_menu_default_item_layout.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/popup_menu_item_layout.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/popup_menu_layout.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/xml/file_paths.xml" value="0.17291666666666666" />
       </map>
     </option>

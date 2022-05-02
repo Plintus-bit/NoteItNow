@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageButton
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/draw_btn"
+    style="@style/PanelIcon"
+    android:background="@drawable/ic_place_for_current_color_for_draw"
+    app:srcCompat="@drawable/ic_current_color_for_draw"
+    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />

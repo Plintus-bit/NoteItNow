@@ -3,26 +3,36 @@ package com.example.noteitnow.statics_entity;
 import android.app.admin.DeviceAdminReceiver;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.noteitnow.R;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 public class PublicResourсes {
+
     // Отладка
     public static final String DEBUG_LOG_TAG = "my debugging messages";
 
     // Единица измерения
+    public static int device_width;
+    public static int device_height;
     public static double DP;
 
     // Обязательное количество ответов = 1
@@ -39,20 +49,26 @@ public class PublicResourсes {
     public static final String[] FILES_DIRECTORY = new String[]
             {"data_images", "data_docs", "cache_data_images", "cache_data_docs"};
 
+    // Default цвет
+    public static int DEFAULT_COLOR;
+    public static int DEFAULT_BG_COLOR;
+    public static final float DEFAULT_STROKE_WIDTH = 12;
+    public static final int DEFAULT_OPACITY = 20;
+
     // Касается панели для заметок (текст, рисование, ластик)
 //    public static final int DRAW = 1;
 //    public static final int WRITE = 0;
-    private static boolean is_draw = false;
+//    private static boolean is_draw = false;
 
     // Методы
 
-    public static void setDrawStatus(boolean status) {
-        is_draw = status;
-    }
-
-    public static boolean isDraw() {
-        return is_draw;
-    }
+//    public static void setDrawStatus(boolean status) {
+//        is_draw = status;
+//    }
+//
+//    public static boolean isDraw() {
+//        return is_draw;
+//    }
 
     private static LinearLayout getNoteLL(LayoutInflater inflater, int ll_id) {
         LinearLayout ll = (LinearLayout) inflater.inflate(ll_id, null, false);
@@ -102,6 +118,7 @@ public class PublicResourсes {
         parent_ll.addView(special_btn);
     }
 
+    // создание новой заметки
     public static LinearLayout getNewNote(LayoutInflater inflater,
                                           String note_name, Drawable pin_icon) {
         LinearLayout ll_container = getNoteLL(inflater, R.layout.note_layout);
@@ -110,5 +127,57 @@ public class PublicResourсes {
         setNoteSpecialImagePinsButton(inflater, R.layout.note_edit_pin_layout, ll_container);
         setNoteSpecialImagePinsButton(inflater, R.layout.note_delete_pin_layout, ll_container);
         return ll_container;
+    }
+
+    // создание цветового элемента
+    private static void colorItem(LayoutInflater inflater, int child_layout,
+                                      LinearLayout parent, int color) {
+        ImageButton btn = (ImageButton) inflater
+                .inflate(child_layout, parent, false);
+        btn.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        btn.setId(color);
+        parent.addView(btn);
+    }
+
+    public static LinearLayout getLLPanelWithColors(LayoutInflater inflater, int layout,
+                                              int[] colors) {
+        LinearLayout ll = (LinearLayout) inflater
+                .inflate(layout, null, false);
+        LinearLayout.LayoutParams lp = new LinearLayout
+                .LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        lp.gravity = Gravity.CENTER_VERTICAL;
+        // ll.setId(TempResources.LINEAR_LAYOUT_ID);
+        ll.setLayoutParams(lp);
+        for (int color : colors) {
+            colorItem(inflater, R.layout.popup_menu_item_layout, ll, color);
+        }
+        return ll;
+    }
+
+    public static LinearLayout getLLPanelWithItems(LayoutInflater inflater, int layout,
+                                                   int[] items_id, ArrayList<Drawable> items) {
+        LinearLayout ll = (LinearLayout) inflater
+                .inflate(layout, null, false);
+        LinearLayout.LayoutParams lp = new LinearLayout
+                .LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        lp.gravity = Gravity.CENTER_VERTICAL;
+        // ll.setId(TempResources.LINEAR_LAYOUT_ID);
+        ll.setLayoutParams(lp);
+        for (int i = 0; i < items_id.length; ++i) {
+            getPanelItem(inflater,
+                    R.layout.popup_menu_default_item_layout, ll, items_id[i], items.get(i));
+        }
+        return ll;
+    }
+
+    private static void getPanelItem(LayoutInflater inflater, int child_layout,
+                                     LinearLayout parent, int item_id, Drawable item) {
+        ImageButton btn = (ImageButton) inflater
+                .inflate(child_layout, parent, false);
+        btn.setImageDrawable(item);
+        btn.setId(item_id);
+        parent.addView(btn);
     }
 }

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CanvasActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RelativeLayout
+            android:id="@+id/main_place_rl"
+            android:layout_width="match_parent"
+            android:layout_height="640dp"
+            android:orientation="vertical" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/very_light_grey">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="2dp">
+
+                    <ImageButton
+                        android:id="@+id/draw_btn"
+                        style="@style/PanelIcon"
+                        app:srcCompat="@drawable/ic_draw"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/marker_btn"
+                        style="@style/PanelIcon"
+                        app:srcCompat="@drawable/ic_copic"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/eraser_btn"
+                        style="@style/PanelIcon"
+                        app:srcCompat="@drawable/ic_eraser"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/draw_color_btn"
+                        style="@style/PanelIcon"
+                        android:background="@drawable/ic_place_for_current_color_for_draw"
+                        app:srcCompat="@drawable/ic_current_color_for_draw"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/marker_color_btn"
+                        style="@style/PanelIcon"
+                        android:background="@drawable/ic_place_for_marker_current_color"
+                        app:srcCompat="@drawable/ic_marker_current_color"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/stroke_width_btn"
+                        style="@style/PanelIcon"
+                        app:srcCompat="@drawable/ic_8px"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/marker_stroke_width_btn"
+                        style="@style/PanelIcon"
+                        app:srcCompat="@drawable/ic_16px_sq"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/marker_opacity_btn"
+                        style="@style/PanelIcon"
+                        app:srcCompat="@drawable/ic_opacity_20"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/bg_change_btn"
+                        style="@style/PanelIcon"
+                        app:srcCompat="@drawable/ic_bg_icon"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                </LinearLayout>
+            </HorizontalScrollView>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/items_hsv"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@color/blue_grey"
+        android:visibility="gone" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,7 @@
 package com.example.noteitnow;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -24,8 +25,6 @@ import java.util.ArrayList;
 
 public class Note extends AppCompatActivity implements View.OnClickListener {
     private EditText note_name, note_main_text;
-    private DrawView draw_view;
-    private RelativeLayout main_rl;
     private ImageButton pin_btn;
     private ArrayList<ImageButton> panel_buttons;
     private Drawable active_panel_item_bg;
@@ -43,66 +42,34 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     private void initOnCreate() {
         panel_buttons = new ArrayList<ImageButton>();
-
         active_panel_item_bg = getDrawable(R.drawable.active_panel_item_btn);
         inactive_panel_item_bg = getDrawable(R.drawable.icons_bg);
-        main_rl = findViewById(R.id.main_place_rl);
-        draw_view = new DrawView(this);
         pin_btn = findViewById(R.id.pin_btn);
 
-        main_rl.addView(draw_view);
-        note_name = findViewById(R.id.note_name);
-        note_main_text = findViewById(R.id.note_main_text);
-
-        panel_buttons.add((ImageButton) findViewById(R.id.write_btn));
-        panel_buttons.add((ImageButton) findViewById(R.id.draw_btn));
-        panel_buttons.add((ImageButton) findViewById(R.id.eraser_btn));
         panel_buttons.add((ImageButton) findViewById(R.id.text_color_btn));
         panel_buttons.add((ImageButton) findViewById(R.id.draw_color_btn));
         panel_buttons.add((ImageButton) findViewById(R.id.bg_change_btn));
+        panel_buttons.add((ImageButton) findViewById(R.id.add_drawing_btn));
+
 
         for (ImageButton btn : panel_buttons) {
             btn.setOnClickListener(this);
         }
 
-        panel_buttons.get(0).setBackground(active_panel_item_bg);
-        TempResources.setCurrentActivePanelBtn(panel_buttons.get(0));
+        note_name = findViewById(R.id.note_name);
+        note_main_text = findViewById(R.id.note_main_text);
     }
 
     @Override
     public void onClick(View view) {
         // код обработки кликов
-        if (view == TempResources.getCurrentActivePanelBtn()) {
-            // Если эта кнопка уже активна, нет смысла что-то менять
-            // Log.d(PublicResourсes.DEBUG_LOG_TAG, "It's already the current button.");
-            return;
-        }
         switch (view.getId()) {
-            case R.id.write_btn:
-                // будем отслеживать изменения в тексте
-                swapActivePanelItem(view, false);
-                note_main_text.setEnabled(true);
-
-                break;
-            case R.id.draw_btn:
-                // будем отслеживать изменения на холсте
-                swapActivePanelItem(view, true);
-                note_main_text.setEnabled(false);
-
+            case R.id.add_drawing_btn:
+                Intent intent = new Intent(this, CanvasActivity.class);
+                startActivityForResult(intent, PublicResourсes.REQUIRED_REQUEST_ANSWERS_NUMBER);
                 break;
             default:
 
-        }
-    }
-
-    private void swapActivePanelItem(View view, boolean draw_status) {
-        try {
-            TempResources.getCurrentActivePanelBtn().setBackground(inactive_panel_item_bg);
-            view.setBackground(active_panel_item_bg);
-            TempResources.setCurrentActivePanelBtn((ImageButton) view);
-            PublicResourсes.setDrawStatus(draw_status);
-        } catch (Exception e) {
-            Log.d(PublicResourсes.DEBUG_LOG_TAG, e.getMessage());
         }
     }
 
@@ -160,4 +127,11 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         return text;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            // добавить изображение
+        }
+    }
 }

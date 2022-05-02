@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initOnCreate() {
         // получаю метрики устройства
         DisplayMetrics dm = getResources().getDisplayMetrics();
+        PublicResourсes.device_width = dm.widthPixels;
+        PublicResourсes.device_height = dm.heightPixels;
         PublicResourсes.DP = dm.density;
 
         // инициализация
@@ -68,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                        TempResources.getTempDrawable());
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 
     private void createNotePresentation(String note_name, Drawable drawable) {

@@ -28,24 +28,6 @@
                 android:paddingLeft="2dp">
 
                 <ImageButton
-                    android:id="@+id/write_btn"
-                    style="@style/PanelIcon"
-                    app:srcCompat="@drawable/ic_write"
-                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
-                <ImageButton
-                    android:id="@+id/draw_btn"
-                    style="@style/PanelIcon"
-                    app:srcCompat="@drawable/ic_draw"
-                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
-                <ImageButton
-                    android:id="@+id/eraser_btn"
-                    style="@style/PanelIcon"
-                    app:srcCompat="@drawable/ic_eraser"
-                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
-                <ImageButton
                     android:id="@+id/text_color_btn"
                     style="@style/PanelIcon"
                     app:srcCompat="@drawable/ic_text_color_place"
@@ -56,14 +38,23 @@
                     style="@style/PanelIcon"
                     android:background="@drawable/ic_place_for_current_color_for_draw"
                     app:srcCompat="@drawable/ic_current_color_for_draw"
-                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck">
-
-                </ImageButton>
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    android:id="@+id/add_marker_list_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_marker_text"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
                 <ImageButton
                     android:id="@+id/bg_change_btn"
                     style="@style/PanelIcon"
                     app:srcCompat="@drawable/ic_bg_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                <ImageButton
+                    android:id="@+id/add_drawing_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_make_draw"
                     tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
             </LinearLayout>
@@ -78,11 +69,11 @@
 
             <EditText
                 android:id="@+id/note_name"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="10"
                 android:background="@drawable/icons_bg"
-                android:ems="10"
+                android:ems="8"
                 android:textSize="19sp"
                 android:hint="@string/note_name"
                 android:inputType="textPersonName"
@@ -92,13 +83,12 @@
             <ImageButton
                 android:id="@+id/pin_btn"
                 style="@style/IconNotePin"
-                android:layout_weight="0"
+                android:layout_weight="1"
                 app:srcCompat="@drawable/ic_clip_icon"
                 tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
         </LinearLayout>
 
         <RelativeLayout
-            android:id="@+id/main_place_rl"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"

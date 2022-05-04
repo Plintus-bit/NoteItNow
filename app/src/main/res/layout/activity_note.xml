@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -23,24 +24,26 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:paddingLeft="2dp">
 
                 <ImageButton
                     android:id="@+id/text_color_btn"
                     style="@style/PanelIcon"
-                    app:srcCompat="@drawable/ic_text_color_place"
+                    android:background="@drawable/bg_for_text_color_place_1"
+                    app:srcCompat="@drawable/ic_text_color_place_1"
                     tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
                 <ImageButton
-                    android:id="@+id/draw_color_btn"
+                    android:id="@+id/text_background_color_btn"
                     style="@style/PanelIcon"
                     android:background="@drawable/ic_place_for_current_color_for_draw"
                     app:srcCompat="@drawable/ic_current_color_for_draw"
                     tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
                 <ImageButton
-                    android:id="@+id/add_marker_list_btn"
+                    android:id="@+id/marker_list_btn"
                     style="@style/PanelIcon"
                     app:srcCompat="@drawable/ic_marker_text"
                     tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
@@ -61,9 +64,9 @@
         </HorizontalScrollView>
 
         <LinearLayout
+            style="@style/NoteStyle"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            style="@style/NoteStyle"
             android:orientation="horizontal"
             android:padding="14dp">
 
@@ -74,11 +77,11 @@
                 android:layout_weight="10"
                 android:background="@drawable/icons_bg"
                 android:ems="8"
-                android:textSize="19sp"
                 android:hint="@string/note_name"
                 android:inputType="textPersonName"
                 android:textColor="@color/black"
-                tools:ignore="TouchTargetSizeCheck"/>
+                android:textSize="19sp"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <ImageButton
                 android:id="@+id/pin_btn"
@@ -88,27 +91,396 @@
                 tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
         </LinearLayout>
 
-        <RelativeLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="14dp">
-
-            <EditText
-                android:id="@+id/note_main_text"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:id="@+id/this_note_place_ll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/icons_bg"
-                android:ems="10"
-                android:gravity="start"
-                android:hint="Дорогой дневник.."
-                android:inputType="textMultiLine"
-                android:minHeight="520dp"
-                android:paddingBottom="120dp"
-                android:textColor="@color/black"
-                android:textSize="18sp" />
+                android:orientation="vertical"
+                android:padding="14dp">
 
-        </RelativeLayout>
+                <EditText
+                    android:id="@+id/note_main_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/icons_bg"
+                    android:ems="10"
+                    android:gravity="start"
+                    android:hint="Дорогой дневник.."
+                    android:inputType="textMultiLine"
+                    android:minHeight="520dp"
+                    android:paddingBottom="120dp"
+                    android:textColor="@color/black"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/items_hsv"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="50dp"
+        android:background="@color/blue_grey"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:id="@+id/pins_sv"
+        android:layout_width="wrap_content"
+        android:layout_height="180dp"
+        android:layout_marginTop="65dp"
+        android:layout_marginRight="60dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone">
+        <LinearLayout
+            android:id="@+id/pins_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/very_light_grey" >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_address_book_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_alarm_clock_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_apple_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_avocado_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_baseball_alt_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_baby_carriage_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_backpack_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_balloons_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_bandage_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_bank_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_barber_shop_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_baseball_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_woman_head_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_beach_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_bed_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_beer_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_big_finger_down_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_big_finger_up_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_biking_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_birthday_cake_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_bolt_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_book_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_bookmark_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_briefcase_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_broom_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_browser_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_brush_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_bulb_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_clip_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_calculator_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_calendar_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_call_history_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_camera_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_car_mechanic_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_carrot_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_cars_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_cloud_rain_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_comment_info_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_credit_card_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_gem_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_gift_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_global_network_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_graduation_cap_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_headphones_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_heart_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_incognito_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_key_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_lock_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_map_marker_home_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_medal_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_paw_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_pineapple_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_portrait_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_recycle_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_rocket_lunch_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_shopping_cart_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_sparkles_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_stats_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_subway_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_thumbtack_pin_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_time_quarter_to_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_time_to_eat_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_tooth_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="2dp" >
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_user_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_users_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                <ImageButton
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_video_icon"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

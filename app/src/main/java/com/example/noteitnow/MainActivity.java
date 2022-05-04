@@ -34,6 +34,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         PublicResourсes.device_height = dm.heightPixels;
         PublicResourсes.DP = dm.density;
 
+        // значение имени непустой заметки по умолчанию
+        PublicResourсes.DEFAULT_NOTE_NAME = getResources()
+                .getString(R.string.default_not_empty_note_name);
+
         // инициализация
         inflater = getLayoutInflater();
         FloatingActionButton add_note_btn = findViewById(R.id.add_new_note_btn);
@@ -49,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.add_new_note_btn:
                 Intent create_note_intent = new Intent(MainActivity.this, Note.class);
                  startActivityForResult(create_note_intent,
-                         PublicResourсes.REQUIRED_REQUEST_ANSWERS_NUMBER);
+                         PublicResourсes.REQUEST_NOTE_EMPTY);
 //                startActivity(create_note_intent);
                 break;
         }
@@ -60,14 +64,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, intent);
 //        Log.d(PublicResourses.DEBUG_LOG_TAG, String.valueOf(resultCode));
         if (RESULT_OK == resultCode) {
-            boolean is_empty = intent
-                    .getBooleanExtra(PublicResourсes.EXTRA_NOTE_IS_EMPTY,
-                            PublicResourсes.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE);
+            switch (requestCode) {
+                case PublicResourсes.REQUEST_NOTE_EMPTY:
+                    boolean is_empty = intent
+                            .getBooleanExtra(PublicResourсes.EXTRA_NOTE_IS_EMPTY,
+                                    PublicResourсes.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE);
 //            Log.d(PublicResourses.DEBUG_LOG_TAG,
 //                    "EXTRA MESSAGE: " + String.valueOf(is_empty));
-            if (!is_empty) {
-                createNotePresentation(intent.getStringExtra(PublicResourсes.EXTRA_NOTE_NAME),
-                                       TempResources.getTempDrawable());
+                    if (!is_empty) {
+                        createNotePresentation(intent.getStringExtra(PublicResourсes.EXTRA_NOTE_NAME),
+                                TempResources.getTempPinIcon());
+                    }
+                    break;
+                default:
+                    // nothing
             }
         }
     }

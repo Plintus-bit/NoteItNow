@@ -5,5 +5,10 @@ public enum Doings {
     MARKER,
     ERASER,
     BACKGROUND,
-    OPACITY
+    OPACITY,
+    NEW_CANVAS,
+    EXIST_CANVAS
+//    STYLE,
+//    LIST,
+//    COLOR,
 }

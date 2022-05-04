@@ -21,43 +21,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
-        <LinearLayout
-            style="@style/NoteStyle">
-
-            <ImageButton
-                android:id="@+id/pin_btn"
-                style="@style/IconMainPinSize"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_clip_icon"
-                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck"
-                android:contentDescription="@string/pin_btn_decript" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="10"
-                android:text="@string/default_note_name"
-                android:maxLength="24"
-                style="@style/TextStyle" />
-
-            <ImageButton
-                android:id="@+id/edit_btn"
-                style="@style/IconSpecialPinSize"
-                android:layout_weight="3"
-                app:srcCompat="@drawable/ic_edit_icon"
-                android:contentDescription="@string/edit_btn_decript"
-                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
-            <ImageButton
-                android:id="@+id/delete_btn"
-                style="@style/IconSpecialPinSize"
-                android:layout_weight="3"
-                app:srcCompat="@drawable/ic_garbage_cart_icon"
-                android:contentDescription="@string/delete_btn_decript"
-                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck"/>
-
-        </LinearLayout>
-
     </LinearLayout>
 
     <LinearLayout

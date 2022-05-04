@@ -3,21 +3,31 @@ package com.example.noteitnow.statics_entity;
 import android.app.admin.DeviceAdminReceiver;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.noteitnow.Note;
 import com.example.noteitnow.R;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -35,40 +45,42 @@ public class PublicResourсes {
     public static int device_height;
     public static double DP;
 
-    // Обязательное количество ответов = 1
-    public static final int REQUIRED_REQUEST_ANSWERS_NUMBER = 1;
+    // Запросы на какие действия рассматриваем
+    public static final int REQUEST_NOTE_EMPTY = 1;
+    public static final int REQUEST_NEW_CANVAS = 2;
+    public static final int REQUEST_EDIT_CANVAS = 3;
 
     // EXTRAS для передачи данных
+    public static final String EXTRA_BG_CANVAS_COLOR = "BG_CANVAS_COLOR";
+    public static final String EXTRA_DRAWING_TEMP_INDEX = "DRAWING_TEMP_INDEX";
     public static final String EXTRA_NOTE_IS_EMPTY = "IS_EMPTY";
     public static final String EXTRA_NOTE_NAME = "NOTE_NAME";
+    public static final String EXTRA_CANVAS_IS_EMPTY = "CANVAS_IS_EMPTY";
+
+    // ACTIONS для передачи данных
+    public static final String ACTION_EDIT_EXIST_CANVAS = "EDIT_EXIST_CANVAS";
+
+    // Значения EXTRAS по умолчанию
     public static final String EXTRA_DEFAULT_STRING_VALUE = "none";
-    public static final Boolean EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE = true;
+    public static final boolean EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE = true;
+    public static final int EXTRA_DEFAULT_INT_VALUE = -1;
+
+    // Название заметки по умолчанию, если отсутсвует и название, и текст
+    public static String DEFAULT_NOTE_NAME;
 
     // то, что касается FileProvider
     public static final String FILE_PROVIDER = "com.example.noteitnow.fileprovider";
     public static final String[] FILES_DIRECTORY = new String[]
             {"data_images", "data_docs", "cache_data_images", "cache_data_docs"};
 
+    // для вычисления прозрачности
+    public static final int ALPHA = 255;
+
     // Default цвет
     public static int DEFAULT_COLOR;
     public static int DEFAULT_BG_COLOR;
     public static final float DEFAULT_STROKE_WIDTH = 12;
-    public static final int DEFAULT_OPACITY = 20;
-
-    // Касается панели для заметок (текст, рисование, ластик)
-//    public static final int DRAW = 1;
-//    public static final int WRITE = 0;
-//    private static boolean is_draw = false;
-
-    // Методы
-
-//    public static void setDrawStatus(boolean status) {
-//        is_draw = status;
-//    }
-//
-//    public static boolean isDraw() {
-//        return is_draw;
-//    }
+    public static final int DEFAULT_OPACITY = (int) (20 * PublicResourсes.ALPHA / 100);
 
     private static LinearLayout getNoteLL(LayoutInflater inflater, int ll_id) {
         LinearLayout ll = (LinearLayout) inflater.inflate(ll_id, null, false);
@@ -180,4 +192,5 @@ public class PublicResourсes {
         btn.setId(item_id);
         parent.addView(btn);
     }
+
 }

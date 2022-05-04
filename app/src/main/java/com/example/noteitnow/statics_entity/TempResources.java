@@ -4,15 +4,20 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageButton;
 
+import java.util.ArrayList;
+
 public class TempResources {
 
-    // Временный Drawable файл
-    private static Drawable temp_drawable;
-    public static void setTempDrawable(Drawable drawable) {
-        temp_drawable = drawable;
+    // Временный Bitmap массив файлов для текущей заметки
+    private static ArrayList<Bitmap> temp_drawings_array = new ArrayList<Bitmap>();
+    public static ArrayList<Bitmap> getTempDrawingsArray() {
+        return temp_drawings_array;
     }
-    public static Drawable getTempDrawable() {
-        return temp_drawable;
+
+    // Цвета фонов для данных рисунков
+    private static ArrayList<Integer> temp_bgs_for_drawings = new ArrayList<Integer>();
+    public static ArrayList<Integer> getTempBGsForDrawings() {
+        return temp_bgs_for_drawings;
     }
 
     // Временный Bitmap нарисованной картинки
@@ -24,7 +29,13 @@ public class TempResources {
         return temp_drawing;
     }
 
-    // Непостоянный Id для LinearLayout в CanvasActivity
-    public static final int LINEAR_LAYOUT_ID = 98;
+    // Временная Иконка текущей заметки
+    private static Drawable temp_pin_icon;
+    public static void setTempPinIcon(Drawable icon) {
+        temp_pin_icon = icon;
+    }
+    public static Drawable getTempPinIcon() {
+        return temp_pin_icon;
+    }
 
 }

@@ -7,4 +7,7 @@
     <string name="delete_btn_decript">Удалить заметку</string>
     <string name="add_btn_decript">Добавить заметку</string>
     <string name="note_name">Название заметки</string>
+    <string name="default_not_empty_note_name">Заметка с рисунком</string>
+    <string name="edit_btn">Редактировать</string>
+    <string name="remove_button">Удалить</string>
 </resources>

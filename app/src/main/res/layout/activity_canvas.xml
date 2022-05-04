@@ -80,7 +80,7 @@
                     <ImageButton
                         android:id="@+id/marker_stroke_width_btn"
                         style="@style/PanelIcon"
-                        app:srcCompat="@drawable/ic_16px_sq"
+                        app:srcCompat="@drawable/ic_24px_sq"
                         tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
                     <ImageButton
@@ -93,6 +93,12 @@
                         android:id="@+id/bg_change_btn"
                         style="@style/PanelIcon"
                         app:srcCompat="@drawable/ic_bg_icon"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                    <ImageButton
+                        android:id="@+id/clear_btn"
+                        style="@style/PanelIcon"
+                        app:srcCompat="@drawable/ic_clear"
                         tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
                 </LinearLayout>

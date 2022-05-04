@@ -5,11 +5,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DrawFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Xfermode;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -117,7 +119,7 @@ public class DrawingView extends View {
 
     private void setDefaultStrokeWidth() {
         current_stroke_width = PublicResourсes.DEFAULT_STROKE_WIDTH;
-        current_marker_stroke_width = PublicResourсes.DEFAULT_STROKE_WIDTH;
+        current_marker_stroke_width = PublicResourсes.DEFAULT_STROKE_WIDTH * 2;
     }
 
     // Касания
@@ -146,7 +148,7 @@ public class DrawingView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!is_empty) {
+        if (is_empty) {
             is_empty = false;
         }
         float x = event.getX(),
@@ -185,6 +187,12 @@ public class DrawingView extends View {
 //        canvas_bitmap = Bitmap.createBitmap(h, w, Bitmap.Config.ARGB_8888);
 //        canvas = new Canvas(canvas_bitmap);
 //    }
+
+    public void clearCanvas() {
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        is_empty = true;
+        invalidate();
+    }
 
     public void setOpacity(int opacity, Doings draw_tool) {
         current_marker_opacity = opacity;
@@ -269,5 +277,18 @@ public class DrawingView extends View {
     // пустой ли холст
     public boolean isCanvasEmpty() {
         return is_empty;
+    }
+
+    // методы получения рисунка
+    public Bitmap getDrawing() {
+        return canvas_bitmap;
+    }
+
+    // метод установки существующего рисунка
+    public void setDrawing(Bitmap exist_drawing, int bg_color) {
+        current_canvas_bg_color = bg_color;
+        canvas_bitmap = Bitmap.createBitmap(exist_drawing);
+        canvas = new Canvas(canvas_bitmap);
+        is_empty = false;
     }
 }

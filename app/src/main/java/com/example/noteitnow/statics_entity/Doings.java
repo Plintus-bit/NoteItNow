@@ -7,7 +7,11 @@ public enum Doings {
     BACKGROUND,
     OPACITY,
     NEW_CANVAS,
-    EXIST_CANVAS
+    EXIST_CANVAS,
+    GSON,
+    PNG,
+    TEXT,
+    TEXT_BG
 //    STYLE,
 //    LIST,
 //    COLOR,

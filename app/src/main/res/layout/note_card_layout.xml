@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    android:id="@+id/note_card_holder"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/white"
+    app:cardElevation="4dp"
+    android:layout_margin="7dp"
+    app:cardCornerRadius="3dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="10dp" >
+            <ImageButton
+                android:id="@+id/note_pin_btn"
+                android:background="@drawable/icons_bg"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="30dp"
+                android:gravity="center_vertical"
+                app:srcCompat="@drawable/ic_clip_icon"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck"
+                android:contentDescription="@string/pin_btn_decript" />
+            <TextView
+                android:id="@+id/note_title_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:maxLength="24"
+                android:layout_weight="6"
+                android:gravity="center_vertical"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:text="@string/default_note_name"
+                android:paddingLeft="6dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textStyle="bold" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/note_text_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:minHeight="60dp"
+            android:maxHeight="210dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="24"
+            android:text="@string/default_not_empty_note_name"
+            android:textColor="@color/mono_dark_gray"/>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

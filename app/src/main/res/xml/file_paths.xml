@@ -6,10 +6,16 @@
     <files-path
         name="data_images"
         path="."/>
+    <files-path
+        name="data_notes"
+        path="."/>
     <cache-path
         name="cache_data_images"
         path="."/>
     <cache-path
         name="cache_data_docs"
+        path="."/>
+    <cache-path
+        name="cache_data_notes"
         path="."/>
 </paths>

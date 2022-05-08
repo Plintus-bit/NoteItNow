@@ -29,14 +29,19 @@ import android.widget.Toast;
 
 import com.example.noteitnow.Note;
 import com.example.noteitnow.R;
+import com.example.noteitnow.notes_entities.NoteStructure;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
-
-public class PublicResourсes {
-
+//PublicResourсes
+public class PublicResources {
     // Отладка
     public static final String DEBUG_LOG_TAG = "my debugging messages";
 
@@ -49,8 +54,11 @@ public class PublicResourсes {
     public static final int REQUEST_NOTE_EMPTY = 1;
     public static final int REQUEST_NEW_CANVAS = 2;
     public static final int REQUEST_EDIT_CANVAS = 3;
+    public static final int REQUEST_NOTE_EDIT = 4;
 
     // EXTRAS для передачи данных
+    public static final String EXTRA_NOTE = "NOTE";
+    public static final String EXTRA_NOTE_DRAWINGS = "NOTE_DRAWINGS";
     public static final String EXTRA_BG_CANVAS_COLOR = "BG_CANVAS_COLOR";
     public static final String EXTRA_DRAWING_TEMP_INDEX = "DRAWING_TEMP_INDEX";
     public static final String EXTRA_NOTE_IS_EMPTY = "IS_EMPTY";
@@ -59,6 +67,9 @@ public class PublicResourсes {
 
     // ACTIONS для передачи данных
     public static final String ACTION_EDIT_EXIST_CANVAS = "EDIT_EXIST_CANVAS";
+    public static final String ACTION_CREATE_NEW_CANVAS = "CREATE_NEW_CANVAS";
+    public static final String ACTION_EDIT_EXIST_NOTE = "EDIT_EXIST_NOTE";
+    public static final String ACTION_CREATE_NEW_NOTE = "CREATE_NEW_NOTE";
 
     // Значения EXTRAS по умолчанию
     public static final String EXTRA_DEFAULT_STRING_VALUE = "none";
@@ -71,7 +82,19 @@ public class PublicResourсes {
     // то, что касается FileProvider
     public static final String FILE_PROVIDER = "com.example.noteitnow.fileprovider";
     public static final String[] FILES_DIRECTORY = new String[]
-            {"data_images", "data_docs", "cache_data_images", "cache_data_docs"};
+            {"data_images", "data_notes", "data_docs",
+             "cache_data_images", "cache_data_docs", "cache_data_notes"};
+
+    // директория с заметками
+    public static File NOTES_DIR;
+    public static File IMAGES_DIR;
+
+    // расширения
+    public static final String IMAGE_PNG = ".png";
+    public static final String TEXT_GSON = ".txt";
+//    public static final String TEXT_GSON = ".json";
+    public static final String IMAGE_PNG_PREFIX = "PNG_";
+    public static final String TEXT_GSON_PREFIX = "GSON_";
 
     // для вычисления прозрачности
     public static final int ALPHA = 255;
@@ -80,8 +103,10 @@ public class PublicResourсes {
     public static int DEFAULT_COLOR;
     public static int DEFAULT_BG_COLOR;
     public static final float DEFAULT_STROKE_WIDTH = 12;
-    public static final int DEFAULT_OPACITY = (int) (20 * PublicResourсes.ALPHA / 100);
+    public static final int DEFAULT_OPACITY = (int) (20 * PublicResources.ALPHA / 100);
 
+    /**********************************************************************************
+     * Первый вариант разметки (устар.) */
     private static LinearLayout getNoteLL(LayoutInflater inflater, int ll_id) {
         LinearLayout ll = (LinearLayout) inflater.inflate(ll_id, null, false);
         LinearLayout.LayoutParams lp = new LinearLayout
@@ -92,6 +117,8 @@ public class PublicResourсes {
         return ll;
     }
 
+    /**********************************************************************************
+     * установка пина (устар.) */
     private static void setNoteImagePinsBtn(LayoutInflater inflater, int child_layout,
                                            LinearLayout parent_ll, Drawable pin_icon) {
         ImageButton btn = (ImageButton) inflater
@@ -106,6 +133,8 @@ public class PublicResourсes {
         parent_ll.addView(btn);
     }
 
+    /**********************************************************************************
+     * установка названия заметки (устар.) */
     private static void setNoteName(LayoutInflater inflater, int child_layout,
                                     LinearLayout parent_ll, String note_name) {
         TextView note = (TextView) inflater.inflate(child_layout, null, false);
@@ -118,6 +147,8 @@ public class PublicResourсes {
         parent_ll.addView(note);
     }
 
+    /**********************************************************************************
+     * установка специальных пинов "редактировать" и "удалить" (устар.) */
     private static void setNoteSpecialImagePinsButton(LayoutInflater inflater, int child_layout,
                                                       LinearLayout parent_ll) {
         ImageButton special_btn = (ImageButton) inflater
@@ -130,7 +161,8 @@ public class PublicResourсes {
         parent_ll.addView(special_btn);
     }
 
-    // создание новой заметки
+    /**********************************************************************************
+     * создание новой заметки (устар.) */
     public static LinearLayout getNewNote(LayoutInflater inflater,
                                           String note_name, Drawable pin_icon) {
         LinearLayout ll_container = getNoteLL(inflater, R.layout.note_layout);
@@ -141,7 +173,8 @@ public class PublicResourсes {
         return ll_container;
     }
 
-    // создание цветового элемента
+    /**********************************************************************************
+     * создание цветового элемента */
     private static void colorItem(LayoutInflater inflater, int child_layout,
                                       LinearLayout parent, int color) {
         ImageButton btn = (ImageButton) inflater
@@ -151,6 +184,8 @@ public class PublicResourсes {
         parent.addView(btn);
     }
 
+    /**********************************************************************************
+     * получение панели цветов */
     public static LinearLayout getLLPanelWithColors(LayoutInflater inflater, int layout,
                                               int[] colors) {
         LinearLayout ll = (LinearLayout) inflater
@@ -167,6 +202,8 @@ public class PublicResourсes {
         return ll;
     }
 
+    /**********************************************************************************
+     * получение панели элементов */
     public static LinearLayout getLLPanelWithItems(LayoutInflater inflater, int layout,
                                                    int[] items_id, ArrayList<Drawable> items) {
         LinearLayout ll = (LinearLayout) inflater
@@ -184,6 +221,8 @@ public class PublicResourсes {
         return ll;
     }
 
+    /**********************************************************************************
+     * создание элемента для панели элементов */
     private static void getPanelItem(LayoutInflater inflater, int child_layout,
                                      LinearLayout parent, int item_id, Drawable item) {
         ImageButton btn = (ImageButton) inflater
@@ -191,6 +230,60 @@ public class PublicResourсes {
         btn.setImageDrawable(item);
         btn.setId(item_id);
         parent.addView(btn);
+    }
+
+
+    /**********************************************************************************
+     * Работа с json */
+    // чтение json
+    public static NoteStructure parseGsonFromFile(String file_path) {
+        String temp_str;
+        String gson_string = "";
+        File file = new File(file_path);
+        // Log.d(DEBUG_LOG_TAG, file.getAbsolutePath());
+        // чтение
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            while ((temp_str = reader.readLine()) != null) {
+                gson_string += temp_str;
+            }
+            // Log.d(DEBUG_LOG_TAG, gson_string);
+        } catch (Exception e) {
+            Log.d(PublicResources.DEBUG_LOG_TAG, e.getMessage());
+        }
+        return NoteStructure.getNoteFromGson(gson_string);
+    }
+
+    // добавить json (2)
+    public static void saveOrReplaceGson(String file_path, String gson_string) {
+        File file = new File(file_path);
+        // Log.d(DEBUG_LOG_TAG, file.getAbsolutePath());
+        // запись
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write(gson_string);
+            writer.close();
+
+        } catch (Exception e) {
+            Log.d(PublicResources.DEBUG_LOG_TAG, e.getMessage());
+        }
+    }
+
+    // создать или получить существующий файл для записи рисунка
+    public static File createFile(String file_name, Doings extension) {
+        File file = null;
+        switch (extension) {
+            case PNG:
+                file = new File(IMAGES_DIR, file_name + PublicResources.IMAGE_PNG);
+                break;
+            case GSON:
+                file = new File(NOTES_DIR, file_name + PublicResources.TEXT_GSON);
+                break;
+        }
+//        if (file != null) {
+//            Log.d(DEBUG_LOG_TAG, file.getAbsolutePath());
+//        }
+        return file;
     }
 
 }

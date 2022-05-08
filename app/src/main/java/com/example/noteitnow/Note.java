@@ -3,6 +3,7 @@ package com.example.noteitnow;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -26,21 +28,53 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.Toast;
 
+import com.example.noteitnow.notes_entities.DrawingStructure;
+import com.example.noteitnow.notes_entities.NoteStructure;
 import com.example.noteitnow.statics_entity.Doings;
-import com.example.noteitnow.statics_entity.PublicResourсes;
+import com.example.noteitnow.statics_entity.PublicResources;
 import com.example.noteitnow.statics_entity.TempResources;
+import com.google.gson.Gson;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Note extends AppCompatActivity implements View.OnClickListener {
     private EditText note_name, note_main_text;
     private ImageButton pin_btn;
-    private ArrayList<Bitmap> drawings;
+
+    // статичные массивы
+    public int[] pin_ids;
+    public int[] colors;
+
+    // текущий цвет bg
+    private int bg_color;
+
+    // массив рисунков
+    ArrayList<DrawingStructure> drawings;
+    DrawingStructure current_temp_drawing;
+
+    // текущее действие над заметкой, от которого зависит её выгрузка
+    private String current_action;
+    private String current_file_name;
+
     private boolean is_drawings_empty;
     private Resources res;
-    private int text_selection_start, text_selection_end;
 
     // inflater
     LayoutInflater inflater;
@@ -49,7 +83,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     private int current_text_color;
     private int current_text_bg_color;
     private int default_text_color;
-    private static final int NO_SELECTION = -1;
 
     // вложенный класс для хранения элементов
     private class ExistView {
@@ -82,7 +115,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     private HorizontalScrollView items_hsv;
     private ScrollView pins_sv;
     private LinearLayout pins_ll,
-            this_note_place_ll;
+            this_note_place_ll,
+            main_ll;
 
     // активные и неактивные элементы
     private Drawable active_panel_item_bg;
@@ -96,20 +130,65 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initOnCreate();
+        
+        getIntentFromMain();
     }
 
-    private void initOnCreate() {
-        // зануляем выделение
-        text_selection_start = NO_SELECTION;
-        text_selection_end = NO_SELECTION;
+    /**********************************************************************************
+     * получение намерения из MainActivity */
+    private void getIntentFromMain() {
+        Intent intent = getIntent();
+        current_action = intent.getAction();
+        Log.d(PublicResources.DEBUG_LOG_TAG, current_action);
 
+        if (current_action.equals(PublicResources.ACTION_EDIT_EXIST_NOTE)) {
+            try {
+                NoteStructure exist_note = (NoteStructure) intent.getSerializableExtra(PublicResources.EXTRA_NOTE);
+                note_name.setText(exist_note.getName());
+                note_main_text.setText(exist_note.getText());
+                for (int i = 0; i < pin_ids.length; ++i) {
+                    if (pin_ids[i] == exist_note.getPin()) {
+                        pin_btn.setTag(i);
+                        break;
+                    }
+                }
+                pin_btn.setImageDrawable(res.getDrawable(exist_note.getPin(), null));
+                bg_color = exist_note.getBg();
+                main_ll.setBackgroundColor(bg_color);
+                current_file_name = exist_note.getFileName();
+//                drawings = exist_note.getDrawings();
+//                if (drawings != null) {
+//                    is_drawings_empty = false;
+//                    for (int i = 0; i < drawings.size(); ++i) {
+//                        Bitmap new_drawing = parseBitmapFromDrawingFile(
+//                                drawings.get(i).getDrawingPath());
+//                        addImageDrawingToNote(R.layout.drawing_layout,
+//                                R.layout.note_main_text_layout, new_drawing,
+//                                drawings.get(i).getDrawingBg());
+//                    }
+//                }
+            } catch (Exception e) {
+                Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
+            }
+        }
+
+    }
+
+    /**********************************************************************************
+     * начальная инициализация */
+    private void initOnCreate() {
         // получение ресурсов
         res = getResources();
+
+        // сбор ресурсов
+        pin_ids = getPinIds();
+        colors = fillColors();
 
         // получение цветов
         default_text_color = res.getColor(R.color.black, null);
         current_text_bg_color = res.getColor(R.color.transparent_, null);
         current_text_color = default_text_color;
+        bg_color = res.getColor(R.color.white, null);
 
         // инициализация inflater
         inflater = getLayoutInflater();
@@ -118,11 +197,15 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         items_hsv = findViewById(R.id.items_hsv);
         pins_sv = findViewById(R.id.pins_sv);
         pins_ll = findViewById(R.id.pins_ll);
+        main_ll = findViewById(R.id.main_ll);
         this_note_place_ll = findViewById(R.id.this_note_place_ll);
         panel_views = new ArrayList<ExistView>();
         active_panel_item_bg = getDrawable(R.drawable.active_panel_item_btn);
         inactive_panel_item_bg = getDrawable(R.drawable.icons_bg);
         pin_btn = findViewById(R.id.pin_btn);
+
+        // настройки Layout'ов
+        main_ll.setBackgroundColor(bg_color);
 
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.text_color_btn)));
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.bg_change_btn)));
@@ -132,16 +215,18 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
         // рисунков нет
         is_drawings_empty = true;
-        drawings = new ArrayList<Bitmap>();
+        drawings = new ArrayList<DrawingStructure>();
 
         for (ExistView btn : panel_views) {
             btn.getItem().setOnClickListener(this);
         }
         pin_btn.setOnClickListener(this);
+        pin_btn.setTag(28);
 
         note_name = findViewById(R.id.note_name);
         note_main_text = findViewById(R.id.note_main_text);
 
+        TempResources.setTempPinIcon(pin_btn.getDrawable());
     }
 
     @Override
@@ -157,7 +242,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.add_drawing_btn:
                 Intent intent = new Intent(this, CanvasActivity.class);
-                startActivityForResult(intent, PublicResourсes.REQUEST_NEW_CANVAS);
+                startActivityForResult(intent, PublicResources.REQUEST_NEW_CANVAS);
                 break;
             case R.id.pin_btn:
                 pins_sv.setVisibility(View.VISIBLE);
@@ -165,6 +250,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                     @Override
                     public void onClick(View view) {
                         TempResources.setTempPinIcon(((ImageButton) view).getDrawable());
+                        pin_btn.setTag(view.getTag());
                         pin_btn.setImageDrawable(TempResources.getTempPinIcon());
                         clearPinsPanel();
                     }
@@ -173,18 +259,67 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                     LinearLayout line = (LinearLayout) pins_ll.getChildAt(line_number);
                     for (int pin_item_number = 0; pin_item_number < line.getChildCount();
                          ++pin_item_number) {
+                        line.getChildAt(pin_item_number).setTag(line_number * 7 + pin_item_number);
                         line.getChildAt(pin_item_number).setOnClickListener(cl);
                     }
                 }
                 break;
+            case R.id.text_color_btn:
+                setColorChooserForPanelElement(panel_views.get(0), Doings.TEXT);
+                break;
+            case R.id.bg_change_btn:
+                setColorChooserForPanelElement(panel_views.get(1), Doings.BACKGROUND);
+                break;
+            case R.id.text_background_color_btn:
+                setColorChooserForPanelElement(panel_views.get(4), Doings.TEXT_BG);
+                break;
             default:
-//                text_selection_start = note_main_text.getSelectionStart();
-//                text_selection_end = note_main_text.getSelectionEnd();
-//                Log.d(PublicResourсes.DEBUG_LOG_TAG,
-//                        ">>> start selection: " + text_selection_start + "\n" +
-//                                ">>> end selection: " + text_selection_end);
                 // nothing
         }
+    }
+
+    /**********************************************************************************
+     * выборка цвета */
+    private void setColorChooserForPanelElement(ExistView existView, Doings color_of_what) {
+        if (items_hsv.getVisibility() == View.VISIBLE) {
+            clearPanelItems();
+        }
+        items_hsv.setVisibility(View.VISIBLE);
+        LinearLayout ll = PublicResources
+                .getLLPanelWithColors(inflater, R.layout.popup_menu_layout, colors);
+        items_hsv.addView(ll);
+        View.OnClickListener color_cl = getColorCL(existView, color_of_what);
+        for (int i = 0; i < ll.getChildCount(); ++i) {
+            (ll.getChildAt(i)).setOnClickListener(color_cl);
+        }
+    }
+
+    /**********************************************************************************
+     * получение специального ClickListener'а */
+    private View.OnClickListener getColorCL(ExistView existView, Doings color_of_what) {
+        View.OnClickListener cl = null;
+        switch (color_of_what) {
+            case BACKGROUND:
+                cl = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        existView.getItem().setColorFilter(view.getId());
+                        bg_color = view.getId();
+                        main_ll.setBackgroundColor(bg_color);
+                        clearPanelItems();
+                    }
+                };
+                break;
+            default:
+                cl = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        existView.getItem().setColorFilter(view.getId());
+                        clearPanelItems();
+                    }
+                };
+        }
+        return cl;
     }
 
     @Override
@@ -201,45 +336,68 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         forActivityResult();
     }
 
+    /**********************************************************************************
+     * возврат результата */
     private void forActivityResult() {
         Intent intent = new Intent();
-        // код обработки закрытия
-        boolean is_empty = ((note_name.getText().length()
-                + note_main_text.getText().length()) == 0) && is_drawings_empty;
-        // Пустая заметка или нет
-        intent.putExtra(PublicResourсes.EXTRA_NOTE_IS_EMPTY, is_empty);
-        // Если не пустая, сообщить её название и пользовательский пин
-        if (!is_empty) {
-            String new_note_name;
-            switch (note_name.getText().toString().length()) {
-                case 0:
-                    new_note_name = getNewNoteName(note_main_text.getText().toString());
-                    break;
-                default:
-                    new_note_name = getNewNoteName(note_name.getText().toString());
+        if (current_action.equals(PublicResources.ACTION_CREATE_NEW_NOTE)) {
+            Log.d(PublicResources.DEBUG_LOG_TAG, ">>> create new");
+            // код обработки закрытия
+            boolean is_empty = ((note_name.getText().length()
+                    + note_main_text.getText().length()) == 0) && is_drawings_empty;
+            // Пустая заметка или нет
+            intent.putExtra(PublicResources.EXTRA_NOTE_IS_EMPTY, is_empty);
+            // Если не пустая, сообщить её данные
+            if (!is_empty) {
+                NoteStructure new_note = getNewNote();
+                intent.putExtra(PublicResources.EXTRA_NOTE, new_note);
+                // сохранение файла
+                File file = PublicResources.createFile(new_note.getFileName(), Doings.GSON);
+                Log.d(PublicResources.DEBUG_LOG_TAG, file.getAbsolutePath());
+                PublicResources.saveOrReplaceGson(file.getAbsolutePath(),
+                        NoteStructure.getNoteToGsonString(new_note));
+                // TempResources.setTempPinIcon(pin_btn.getDrawable());
             }
-            intent.putExtra(PublicResourсes.EXTRA_NOTE_NAME, new_note_name);
-            TempResources.setTempPinIcon(pin_btn.getDrawable());
         }
-
+        else if (current_action.equals(PublicResources.ACTION_EDIT_EXIST_NOTE)) {
+            Log.d(PublicResources.DEBUG_LOG_TAG, ">>> edit exist");
+            try {
+                NoteStructure exist_note = getNewNote();
+                exist_note.setFileName(current_file_name);
+                intent.putExtra(PublicResources.EXTRA_NOTE, exist_note);
+                // сохранение файла
+                File file = PublicResources.createFile(current_file_name, Doings.GSON);
+                PublicResources.saveOrReplaceGson(file.getAbsolutePath(),
+                        NoteStructure.getNoteToGsonString(exist_note));
+                Log.d(PublicResources.DEBUG_LOG_TAG, "Finally!");
+            } catch (Exception e) {
+                Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
+            }
+        }
+        clearTempResources();
         setResult(RESULT_OK, intent);
         finish();
     }
 
     private String getNewNoteName(String text) {
         String new_note_name = "";
-        final int MAX_CHARS_LEN = 24;
-        final int MAX_CHARS_LEN_WITH_END_CHARS = 22;
+        final int MAX_CHARS_LEN = 16;
+        final int MAX_CHARS_LEN_WITH_END_CHARS = MAX_CHARS_LEN - 2;
         final String END_CHARS = "..";
-        if (text.length() > 24) {
+        if (text.length() > MAX_CHARS_LEN) {
             for (int i = 0; i < MAX_CHARS_LEN_WITH_END_CHARS; ++i) {
-                new_note_name += text.charAt(i);
+                if (text.charAt(i) == '\n') {
+                    break;
+                }
+                else {
+                    new_note_name += text.charAt(i);
+                }
             }
             new_note_name += END_CHARS;
             return new_note_name;
         }
         else if (text.length() == 0) {
-            new_note_name = PublicResourсes.DEFAULT_NOTE_NAME;
+            new_note_name = PublicResources.DEFAULT_NOTE_NAME;
             return new_note_name;
         }
         return text;
@@ -251,10 +409,10 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 // получение рисунка
-                case PublicResourсes.REQUEST_NEW_CANVAS:
+                case PublicResources.REQUEST_NEW_CANVAS:
                     boolean is_new_canvas_empty = intent
-                            .getBooleanExtra(PublicResourсes.EXTRA_CANVAS_IS_EMPTY,
-                            PublicResourсes.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE);
+                            .getBooleanExtra(PublicResources.EXTRA_CANVAS_IS_EMPTY,
+                                    PublicResources.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE);
                     if (!is_new_canvas_empty) {
                         ArrayList<Bitmap> bitmaps_array = TempResources.getTempDrawingsArray();
                         if (bitmaps_array.size() > 0) {
@@ -269,10 +427,10 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                                 new_drawing, bg_color);
                     }
                     break;
-                case PublicResourсes.REQUEST_EDIT_CANVAS:
+                case PublicResources.REQUEST_EDIT_CANVAS:
                     int temp_index = intent
-                            .getIntExtra(PublicResourсes.EXTRA_DRAWING_TEMP_INDEX,
-                            PublicResourсes.EXTRA_DEFAULT_INT_VALUE);
+                            .getIntExtra(PublicResources.EXTRA_DRAWING_TEMP_INDEX,
+                                    PublicResources.EXTRA_DEFAULT_INT_VALUE);
                     Drawable img_bg = waiting_for_result.getBackground();
                     img_bg.setColorFilter(TempResources.getTempBGsForDrawings().get(temp_index),
                             PorterDuff.Mode.SRC_IN);
@@ -363,8 +521,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 .inflate(child_layout, null, false);
         LinearLayout.LayoutParams lp = new LinearLayout
                 .LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                (int) (320 * PublicResourсes.DP));
-        lp.bottomMargin = (int) (7 * PublicResourсes.DP);
+                (int) (320 * PublicResources.DP));
+        lp.bottomMargin = (int) (7 * PublicResources.DP);
         Drawable bg = drawing_img.getBackground();
         bg.setColorFilter(bg_color, PorterDuff.Mode.SRC_IN);
         drawing_img.setBackground(bg);
@@ -390,16 +548,16 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
                         for (int index = 0; index < temp_drawings.size(); ++index) {
                             if (draw_bmp.equals(temp_drawings.get(index))) {
-                                intent.putExtra(PublicResourсes.EXTRA_BG_CANVAS_COLOR,
+                                intent.putExtra(PublicResources.EXTRA_BG_CANVAS_COLOR,
                                         TempResources.getTempBGsForDrawings().get(index));
-                                intent.putExtra(PublicResourсes.EXTRA_DRAWING_TEMP_INDEX,
+                                intent.putExtra(PublicResources.EXTRA_DRAWING_TEMP_INDEX,
                                         index);
                                 TempResources.setTempDrawingFromCanvas(temp_drawings.get(index));
                                 break;
                             }
                         }
-                        intent.setAction(PublicResourсes.ACTION_EDIT_EXIST_CANVAS);
-                        startActivityForResult(intent, PublicResourсes.REQUEST_EDIT_CANVAS);
+                        intent.setAction(PublicResources.ACTION_EDIT_EXIST_CANVAS);
+                        startActivityForResult(intent, PublicResources.REQUEST_EDIT_CANVAS);
                         return true;
                     case R.id.remove_draw_btn:
                         // удаляем
@@ -459,4 +617,137 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         TempResources.getTempBGsForDrawings().clear();
         TempResources.getTempDrawingsArray().clear();
     }
+
+    /**********************************************************************************
+     * работа с файлами (рисунки) */
+
+    // удалить рисунок
+    public boolean deleteDrawing(File drawing_file) {
+        return drawing_file.delete();
+    }
+
+    // добавить рисунок
+    public void saveOrReplaceDrawing(File file, Bitmap bitmap) {
+        OutputStream os;
+        try {
+            os = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
+        }
+    }
+
+    // распарсить рисунок из файла
+    public Bitmap parseBitmapFromDrawingFile(String file_path) {
+        File file = new File(file_path);
+        return BitmapFactory.decodeFile(file_path);
+    }
+
+    public String getNewFileName(Doings file_extension) {
+        String extension = "_";
+        switch (file_extension) {
+            case GSON:
+                extension = PublicResources.TEXT_GSON_PREFIX;
+                break;
+            case PNG:
+                extension = PublicResources.IMAGE_PNG_PREFIX;
+                break;
+        }
+        String time_stamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
+        return (extension + time_stamp + "_");
+    }
+
+    /**********************************************************************************
+     * обработка рисунков (новых и старых) */
+    public void setNewDrawing(int index) {
+//        String new_file_name = getNewFileName();
+//
+//        current_temp_drawing = null;
+//        current_temp_drawing = new DrawingStructure();
+//        current_temp_drawing.setDrawingFileName(new_file_name);
+    }
+
+    public void editExistDrawing(int index) {
+
+    }
+
+
+    /**********************************************************************************
+     * получение рисунков при открытии заметки */
+    public void getArrayListOfDrawings() {
+
+    }
+
+    /**********************************************************************************
+     * сохранение заметки */
+    public NoteStructure getNewNote() {
+        NoteStructure new_note = null;
+        try {
+            new_note = new NoteStructure();
+            new_note.setFileName(getNewFileName(Doings.GSON));
+            if (note_name.getText().length() == 0) {
+                new_note.setName(getNewNoteName(note_main_text.getText().toString()));
+            }
+            else {
+                new_note.setName(note_name.getText().toString());
+            }
+            new_note.setText(note_main_text.getText().toString());
+            new_note.setPin(pin_ids[Integer.parseInt(pin_btn.getTag().toString())]);
+            new_note.setBg(bg_color);
+        } catch (Exception e) {
+            Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
+        }
+//        String gson_note = NoteStructure.getNoteToGsonString(new_note);
+//        NoteStructure note_note = NoteStructure.getNoteFromGson(gson_note);
+//        Log.d(PublicResources.DEBUG_LOG_TAG,
+//                "name: " + note_note.getName() + "\n" +
+//                        "text: " + note_note.getText() + "\n" +
+//                        "pin: " + String.valueOf(note_note.getPin()));
+        return new_note;
+    }
+
+    /**********************************************************************************
+     * инициализация пинов */
+    private int[] getPinIds() {
+        return new int[] {
+                R.drawable.ic_address_book_icon, R.drawable.ic_alarm_clock_icon,
+                R.drawable.ic_apple_icon, R.drawable.ic_avocado_icon,
+                R.drawable.ic_baseball_alt_icon, R.drawable.ic_baby_carriage_icon,
+                R.drawable.ic_backpack_icon, R.drawable.ic_balloons_icon,
+                R.drawable.ic_bandage_icon, R.drawable.ic_bank_icon,
+                R.drawable.ic_barber_shop_icon, R.drawable.ic_baseball_icon,
+                R.drawable.ic_woman_head_icon, R.drawable.ic_beach_icon,
+                R.drawable.ic_bed_icon, R.drawable.ic_beer_icon,
+                R.drawable.ic_big_finger_down_icon, R.drawable.ic_big_finger_up_icon,
+                R.drawable.ic_biking_icon, R.drawable.ic_birthday_cake_icon,
+                R.drawable.ic_bolt_icon, R.drawable.ic_book_icon,
+                R.drawable.ic_bookmark_icon, R.drawable.ic_briefcase_icon,
+                R.drawable.ic_broom_icon, R.drawable.ic_browser_icon,
+                R.drawable.ic_brush_icon, R.drawable.ic_bulb_icon,
+                R.drawable.ic_clip_icon,
+                R.drawable.ic_calculator_icon, R.drawable.ic_calendar_icon,
+                R.drawable.ic_call_history_icon, R.drawable.ic_camera_icon,
+                R.drawable.ic_car_mechanic_icon, R.drawable.ic_carrot_icon,
+                R.drawable.ic_cars_icon,
+                R.drawable.ic_cloud_rain_icon, R.drawable.ic_comment_info_icon,
+                R.drawable.ic_credit_card_icon, R.drawable.ic_gem_icon,
+                R.drawable.ic_gift_icon, R.drawable.ic_global_network_icon,
+                R.drawable.ic_graduation_cap_icon, R.drawable.ic_headphones_icon,
+                R.drawable.ic_heart_icon, R.drawable.ic_incognito_icon,
+                R.drawable.ic_key_icon, R.drawable.ic_lock_icon,
+                R.drawable.ic_map_marker_home_icon, R.drawable.ic_medal_icon,
+                R.drawable.ic_paw_icon, R.drawable.ic_pineapple_icon,
+                R.drawable.ic_portrait_icon, R.drawable.ic_recycle_icon,
+                R.drawable.ic_rocket_lunch_icon, R.drawable.ic_shopping_cart_icon,
+                R.drawable.ic_sparkles_icon, R.drawable.ic_stats_icon,
+                R.drawable.ic_subway_icon, R.drawable.ic_thumbtack_pin_icon,
+                R.drawable.ic_time_quarter_to_icon, R.drawable.ic_time_to_eat_icon,
+                R.drawable.ic_tooth_icon, R.drawable.ic_user_icon,
+                R.drawable.ic_users_icon, R.drawable.ic_video_icon,
+                R.drawable.ic_basketball_icon
+        };
+    }
+
 }

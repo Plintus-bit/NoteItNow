@@ -9,19 +9,14 @@
     android:layout_marginRight="14dp"
     android:layout_marginTop="10dp">
 
-    <LinearLayout
-        android:id="@+id/notes_place_ll"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/note_place_rv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:minHeight="400dp"
+        android:paddingBottom="120dp"
         android:layout_marginBottom="60dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
-
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -60,8 +55,8 @@
         android:id="@+id/add_new_note_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="30dp"
         app:rippleColor="@color/contrast_blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

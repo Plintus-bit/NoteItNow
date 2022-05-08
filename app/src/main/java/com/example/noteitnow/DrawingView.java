@@ -16,7 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.noteitnow.statics_entity.Doings;
-import com.example.noteitnow.statics_entity.PublicResourсes;
+import com.example.noteitnow.statics_entity.PublicResources;
 
 public class DrawingView extends View {
     // пуст ли canvas
@@ -54,7 +54,7 @@ public class DrawingView extends View {
         super(context);
         init();
         canvas_bitmap = Bitmap
-                .createBitmap(PublicResourсes.device_width, (int) (640 * PublicResourсes.DP),
+                .createBitmap(PublicResources.device_width, (int) (640 * PublicResources.DP),
                         Bitmap.Config.ARGB_8888);
         canvas = new Canvas(canvas_bitmap);
         is_empty = true;
@@ -104,7 +104,7 @@ public class DrawingView extends View {
         draw_path = new Path();
         setDefaultColor();
         setDefaultStrokeWidth();
-        current_marker_opacity = PublicResourсes.DEFAULT_OPACITY;
+        current_marker_opacity = PublicResources.DEFAULT_OPACITY;
         setBrush();
         setMarker();
         setEraser();
@@ -112,14 +112,14 @@ public class DrawingView extends View {
     }
 
     private void setDefaultColor() {
-        current_paint_color = PublicResourсes.DEFAULT_COLOR;
-        current_marker_paint_color = PublicResourсes.DEFAULT_COLOR;
-        current_canvas_bg_color = PublicResourсes.DEFAULT_BG_COLOR;
+        current_paint_color = PublicResources.DEFAULT_COLOR;
+        current_marker_paint_color = PublicResources.DEFAULT_COLOR;
+        current_canvas_bg_color = PublicResources.DEFAULT_BG_COLOR;
     }
 
     private void setDefaultStrokeWidth() {
-        current_stroke_width = PublicResourсes.DEFAULT_STROKE_WIDTH;
-        current_marker_stroke_width = PublicResourсes.DEFAULT_STROKE_WIDTH * 2;
+        current_stroke_width = PublicResources.DEFAULT_STROKE_WIDTH;
+        current_marker_stroke_width = PublicResources.DEFAULT_STROKE_WIDTH * 2;
     }
 
     // Касания

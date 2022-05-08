@@ -19,7 +19,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.example.noteitnow.statics_entity.PublicResourсes;
+import com.example.noteitnow.statics_entity.PublicResources;
 
 import java.util.ArrayList;
 
@@ -82,11 +82,11 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
     private void getIntents() {
         catched_result_intent = getIntent();
         if (catched_result_intent != null) {
-            if (catched_result_intent.getAction() == PublicResourсes.ACTION_EDIT_EXIST_CANVAS) {
+            if (catched_result_intent.getAction() == PublicResources.ACTION_EDIT_EXIST_CANVAS) {
                 canvas_state = Doings.EXIST_CANVAS;
                 int index = catched_result_intent.getIntExtra(
-                        PublicResourсes.EXTRA_DRAWING_TEMP_INDEX,
-                        PublicResourсes.EXTRA_DEFAULT_INT_VALUE);
+                        PublicResources.EXTRA_DRAWING_TEMP_INDEX,
+                        PublicResources.EXTRA_DEFAULT_INT_VALUE);
                 Bitmap bmp = TempResources.getTempDrawingsArray()
                         .get(index);
 //                draw_view.setColor(catched_result_intent
@@ -94,8 +94,8 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
 //                                        PublicResourсes.DEFAULT_BG_COLOR),
 //                        Doings.BACKGROUND);
                 draw_view.setDrawing(bmp, catched_result_intent
-                        .getIntExtra(PublicResourсes.EXTRA_BG_CANVAS_COLOR,
-                                PublicResourсes.DEFAULT_BG_COLOR));
+                        .getIntExtra(PublicResources.EXTRA_BG_CANVAS_COLOR,
+                                PublicResources.DEFAULT_BG_COLOR));
             }
         }
     }
@@ -106,8 +106,8 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         inflater = getLayoutInflater();
 
         // устанавливаем цвета по умолчанию
-        PublicResourсes.DEFAULT_COLOR = res.getColor(R.color.blue_total_black, null);
-        PublicResourсes.DEFAULT_BG_COLOR = res.getColor(R.color.transparent_, null);
+        PublicResources.DEFAULT_COLOR = res.getColor(R.color.blue_total_black, null);
+        PublicResources.DEFAULT_BG_COLOR = res.getColor(R.color.transparent_, null);
 
         // инициализация для рисования
         main_rl = findViewById(R.id.main_place_rl);
@@ -220,7 +220,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
             clearPanelItems();
         }
         items_hsv.setVisibility(View.VISIBLE);
-        LinearLayout ll = PublicResourсes
+        LinearLayout ll = PublicResources
                 .getLLPanelWithColors(inflater, R.layout.popup_menu_layout, colors);
         items_hsv.addView(ll);
         View.OnClickListener color_cl = new View.OnClickListener() {
@@ -256,15 +256,15 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         LinearLayout ll = null;
         switch (draw_tool) {
             case OPACITY:
-                ll = PublicResourсes.getLLPanelWithItems(inflater,
+                ll = PublicResources.getLLPanelWithItems(inflater,
                         R.layout.popup_menu_layout, opacity_ids, marker_opacity_icons);
                 break;
             case MARKER:
-                ll = PublicResourсes.getLLPanelWithItems(inflater,
+                ll = PublicResources.getLLPanelWithItems(inflater,
                     R.layout.popup_menu_layout, width_ids, marker_width_icons);
                 break;
             case BRUSH:
-                ll = PublicResourсes.getLLPanelWithItems(inflater,
+                ll = PublicResources.getLLPanelWithItems(inflater,
                         R.layout.popup_menu_layout, width_ids, width_icons);
                 break;
             default:
@@ -317,7 +317,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
             view.setBackground(active_panel_item_bg);
             setCurrentActivePanelBtn((ImageButton) view);
         } catch (Exception e) {
-            Log.d(PublicResourсes.DEBUG_LOG_TAG, e.getMessage());
+            Log.d(PublicResources.DEBUG_LOG_TAG, e.getMessage());
         }
     }
 
@@ -429,11 +429,11 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
 
     private int[] fillOpacityIds() {
         return (new int[] {
-                (int) (10 * PublicResourсes.ALPHA / 100),
-                (int) (20 * PublicResourсes.ALPHA / 100),
-                (int) (40 * PublicResourсes.ALPHA / 100),
-                (int) (60 * PublicResourсes.ALPHA / 100),
-                (int) (80 * PublicResourсes.ALPHA / 100)});
+                (int) (10 * PublicResources.ALPHA / 100),
+                (int) (20 * PublicResources.ALPHA / 100),
+                (int) (40 * PublicResources.ALPHA / 100),
+                (int) (60 * PublicResources.ALPHA / 100),
+                (int) (80 * PublicResources.ALPHA / 100)});
     }
 
     private ArrayList<Drawable> fillStrokeWidthIcons() {
@@ -483,24 +483,24 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         if (canvas_state == Doings.EXIST_CANVAS) {
             // если пользователь стёр содержимое холста
             boolean is_canvas_empty = draw_view.isCanvasEmpty();
-            intent.putExtra(PublicResourсes.EXTRA_CANVAS_IS_EMPTY, is_canvas_empty);
+            intent.putExtra(PublicResources.EXTRA_CANVAS_IS_EMPTY, is_canvas_empty);
             // получаем индекс из временного массива
             int temp_index = catched_result_intent
-                    .getIntExtra(PublicResourсes.EXTRA_DRAWING_TEMP_INDEX,
-                            PublicResourсes.EXTRA_DEFAULT_INT_VALUE);
+                    .getIntExtra(PublicResources.EXTRA_DRAWING_TEMP_INDEX,
+                            PublicResources.EXTRA_DEFAULT_INT_VALUE);
             TempResources.getTempBGsForDrawings().remove(temp_index);
             TempResources.getTempBGsForDrawings().add(draw_view.getColor(Doings.BACKGROUND));
             TempResources.getTempDrawingsArray().remove(temp_index);
             TempResources.getTempDrawingsArray().add(draw_view.getDrawing());
             // поменяли индекс
             TempResources.setTempDrawingFromCanvas(draw_view.getDrawing());
-            intent.putExtra(PublicResourсes.EXTRA_DRAWING_TEMP_INDEX,
+            intent.putExtra(PublicResources.EXTRA_DRAWING_TEMP_INDEX,
                     TempResources.getTempBGsForDrawings().size() - 1);
 
         }
         else {
             boolean is_canvas_empty = draw_view.isCanvasEmpty();
-            intent.putExtra(PublicResourсes.EXTRA_CANVAS_IS_EMPTY, is_canvas_empty);
+            intent.putExtra(PublicResources.EXTRA_CANVAS_IS_EMPTY, is_canvas_empty);
             if (!is_canvas_empty) {
                 // если не пустой, добавить во временное хранилище для текущей заметки;
                 TempResources.getTempBGsForDrawings()

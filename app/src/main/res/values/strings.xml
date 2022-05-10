@@ -10,5 +10,6 @@
     <string name="default_not_empty_note_name">Заметка с рисунком</string>
     <string name="edit_btn">Редактировать</string>
     <string name="remove_button">Удалить</string>
-    <string name="note_text">Tекст заметки</string>
+    <string name="note_text">Пока что тут пусто..</string>
+    <string name="clip_btn">Закрепить/Открепить</string>
 </resources>

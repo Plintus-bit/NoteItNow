@@ -20,10 +20,10 @@ import java.util.List;
 public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
     Context context;
     ArrayList<NoteStructure> notes_list;
-    View.OnClickListener note_cl;
+    NoteActionsListener note_cl;
 
     public NotesListAdapter(Context context, ArrayList<NoteStructure> notes,
-                            View.OnClickListener note_cl) {
+                            NoteActionsListener note_cl) {
         this.context = context;
         this.notes_list = notes;
         this.note_cl = note_cl;
@@ -38,7 +38,19 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull NotesViewHolder holder, int position) {
-        holder.note_card_holder.setOnClickListener(note_cl);
+        holder.note_card_holder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                note_cl.onClick(view);
+            }
+        });
+        holder.note_card_holder.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                note_cl.onLongClick(view, holder.note_card_holder);
+                return false;
+            }
+        });
         holder.note_card_holder.setCardBackgroundColor(notes_list.get(position).getBg());
         holder.note_card_holder.setTag(notes_list.get(position).getFileName());
         holder.note_pin_btn
@@ -50,6 +62,11 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
     @Override
     public int getItemCount() {
         return notes_list.size();
+    }
+
+    public void addFilteredNotes(ArrayList<NoteStructure> filtered_list) {
+        notes_list = filtered_list;
+        notifyDataSetChanged();
     }
 }
 

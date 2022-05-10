@@ -13,15 +13,18 @@ public class TempResources {
     public static ArrayList<Bitmap> getTempDrawingsArray() {
         return temp_drawings_array;
     }
-    public static void setTempDrawingsArray(ArrayList<Bitmap> array) {
-        temp_drawings_array = array;
-    }
+//    public static void setTempDrawingsArray(ArrayList<Bitmap> array) {
+//        temp_drawings_array = array;
+//    }
 
     // Цвета фонов для данных рисунков
     private static ArrayList<Integer> temp_bgs_for_drawings = new ArrayList<Integer>();
     public static ArrayList<Integer> getTempBGsForDrawings() {
         return temp_bgs_for_drawings;
     }
+//    public static void setTempBGsForDrawings(ArrayList<Integer> new_bgs) {
+//        temp_bgs_for_drawings = new_bgs;
+//    }
 
     // Временный Bitmap нарисованной картинки
     private static Bitmap temp_drawing;

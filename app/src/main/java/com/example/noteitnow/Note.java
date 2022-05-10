@@ -3,20 +3,15 @@ package com.example.noteitnow;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.noteitnow.notes_entities.DrawingStructure;
@@ -36,20 +30,10 @@ import com.example.noteitnow.notes_entities.NoteStructure;
 import com.example.noteitnow.statics_entity.Doings;
 import com.example.noteitnow.statics_entity.PublicResources;
 import com.example.noteitnow.statics_entity.TempResources;
-import com.google.gson.Gson;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -67,7 +51,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     // массив рисунков
     ArrayList<DrawingStructure> drawings;
-    DrawingStructure current_temp_drawing;
 
     // текущее действие над заметкой, от которого зависит её выгрузка
     private String current_action;
@@ -75,6 +58,9 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     private boolean is_drawings_empty;
     private Resources res;
+
+    // попап
+    private PopupMenu.OnMenuItemClickListener popup_cl;
 
     // inflater
     LayoutInflater inflater;
@@ -115,8 +101,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     private HorizontalScrollView items_hsv;
     private ScrollView pins_sv;
     private LinearLayout pins_ll,
-            this_note_place_ll,
-            main_ll;
+            main_ll,
+            this_note_place_ll;
 
     // активные и неактивные элементы
     private Drawable active_panel_item_bg;
@@ -143,7 +129,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
         if (current_action.equals(PublicResources.ACTION_EDIT_EXIST_NOTE)) {
             try {
-                NoteStructure exist_note = (NoteStructure) intent.getSerializableExtra(PublicResources.EXTRA_NOTE);
+                NoteStructure exist_note = (NoteStructure) intent
+                        .getSerializableExtra(PublicResources.EXTRA_NOTE);
                 note_name.setText(exist_note.getName());
                 note_main_text.setText(exist_note.getText());
                 for (int i = 0; i < pin_ids.length; ++i) {
@@ -156,19 +143,24 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 bg_color = exist_note.getBg();
                 main_ll.setBackgroundColor(bg_color);
                 current_file_name = exist_note.getFileName();
-//                drawings = exist_note.getDrawings();
-//                if (drawings != null) {
-//                    is_drawings_empty = false;
-//                    for (int i = 0; i < drawings.size(); ++i) {
-//                        Bitmap new_drawing = parseBitmapFromDrawingFile(
-//                                drawings.get(i).getDrawingPath());
-//                        addImageDrawingToNote(R.layout.drawing_layout,
-//                                R.layout.note_main_text_layout, new_drawing,
-//                                drawings.get(i).getDrawingBg());
-//                    }
-//                }
+                drawings = exist_note.getDrawings();
+                if (drawings != null) {
+                    is_drawings_empty = false;
+                    for (int i = 0; i < drawings.size(); ++i) {
+                        File file = PublicResources.createFile(drawings.get(i)
+                                .getDrawingFileName(), Doings.PNG);
+                        Bitmap new_drawing = PublicResources
+                                .parseBitmapFromDrawingFile(file.getAbsolutePath());
+                        TempResources.getTempDrawingsArray().add(new_drawing);
+                        TempResources.getTempBGsForDrawings().add(drawings.get(i).getDrawingBg());
+                        addImageDrawingToNote(R.layout.drawing_layout,
+                                drawings.get(i).getDrawingFileName(), new_drawing,
+                                drawings.get(i).getDrawingBg());
+                    }
+                }
+                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Processed!");
             } catch (Exception e) {
-                Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
+                Log.d(PublicResources.DEBUG_LOG_TAG, "error (1): " + e.getMessage());
             }
         }
 
@@ -198,7 +190,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         pins_sv = findViewById(R.id.pins_sv);
         pins_ll = findViewById(R.id.pins_ll);
         main_ll = findViewById(R.id.main_ll);
-        this_note_place_ll = findViewById(R.id.this_note_place_ll);
+         this_note_place_ll = findViewById(R.id.this_note_place_ll);
         panel_views = new ArrayList<ExistView>();
         active_panel_item_bg = getDrawable(R.drawable.active_panel_item_btn);
         inactive_panel_item_bg = getDrawable(R.drawable.icons_bg);
@@ -227,6 +219,17 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         note_main_text = findViewById(R.id.note_main_text);
 
         TempResources.setTempPinIcon(pin_btn.getDrawable());
+
+        popup_cl = getPopupMenuItemCl();
+
+    }
+
+    // попап меню
+    private void showPopupForDrawing(View view) {
+        PopupMenu popup_for_drawing = new PopupMenu(this, view);
+        popup_for_drawing.setOnMenuItemClickListener(popup_cl);
+        popup_for_drawing.inflate(R.menu.popup_menu_for_image_drawing);
+        popup_for_drawing.show();
     }
 
     @Override
@@ -242,6 +245,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.add_drawing_btn:
                 Intent intent = new Intent(this, CanvasActivity.class);
+                intent.setAction(PublicResources.ACTION_CREATE_NEW_CANVAS);
                 startActivityForResult(intent, PublicResources.REQUEST_NEW_CANVAS);
                 break;
             case R.id.pin_btn:
@@ -407,6 +411,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (resultCode == RESULT_OK) {
+            String file_name = "";
             switch (requestCode) {
                 // получение рисунка
                 case PublicResources.REQUEST_NEW_CANVAS:
@@ -418,13 +423,30 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         if (bitmaps_array.size() > 0) {
                             is_drawings_empty = false;
                         }
+                        file_name = getNewFileName(Doings.PNG);
                         // добавить изображение в заметку
                         Bitmap new_drawing = bitmaps_array.get(bitmaps_array.size() - 1);
                         int bg_color = TempResources.getTempBGsForDrawings()
                                 .get(bitmaps_array.size() - 1);
                         addImageDrawingToNote(R.layout.drawing_layout,
-                                R.layout.note_main_text_layout,
+                                file_name,
                                 new_drawing, bg_color);
+
+                        // добавление в массив
+                        File file = PublicResources.createFile(file_name, Doings.PNG);
+                        DrawingStructure catched_drawing = new DrawingStructure();
+                        catched_drawing.setDrawingBg(bg_color);
+                        catched_drawing.setDrawingFileName(file_name);
+                        drawings.add(catched_drawing);
+                        // добавление изображения в файл
+                        Thread save_drawing = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                saveOrReplaceDrawing(file, new_drawing);
+                                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Get it!");
+                            }
+                        });
+                        save_drawing.start();
                     }
                     break;
                 case PublicResources.REQUEST_EDIT_CANVAS:
@@ -437,17 +459,38 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                     waiting_for_result.setBackground(img_bg);
                     waiting_for_result.setImageBitmap(TempResources
                             .getTempDrawingsArray().get(temp_index));
+
+                    // замена записи в массиве
+                    file_name = intent.getStringExtra(PublicResources.EXTRA_CANVAS_TAG);
+                    File file = PublicResources.createFile(file_name, Doings.PNG);
+                    DrawingStructure editing_drawing = new DrawingStructure();
+                    editing_drawing.setDrawingBg(TempResources
+                            .getTempBGsForDrawings().get(temp_index));
+                    editing_drawing.setDrawingFileName(file_name);
+                    for (int i = 0; i < drawings.size(); ++i) {
+                        if (drawings.get(i).getDrawingFileName().equals(file_name)) {
+                            drawings.set(i, editing_drawing);
+                            break;
+                        }
+                    }
+                    if (intent.getBooleanExtra(PublicResources.EXTRA_CANVAS_IS_EDIT,
+                            !PublicResources.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE)) {
+                        // добавление изображения в файл
+                        Thread save_drawing = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                saveOrReplaceDrawing(file, TempResources
+                                        .getTempDrawingsArray().get(temp_index));
+                                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Get it!");
+                            }
+                        });
+                        save_drawing.start();
+                    }
                     break;
                 default:
                     // nothing
             }
         }
-    }
-
-    // выбор цвета для заднего фона или текста
-    private void setColorChooserForPanel(ImageButton panel_element,
-                                         Doings panel_element_color) {
-        // nothing
     }
 
     private void clearPanelItems() {
@@ -515,7 +558,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     // обработка добавления изображений
     private ImageView getImageDrawingForNote(int child_layout, Bitmap drawing,
-                                             int bg_color) {
+                                             int bg_color, String tag) {
         // создание изображения
         ImageView drawing_img = (ImageView) inflater
                 .inflate(child_layout, null, false);
@@ -525,65 +568,17 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         lp.bottomMargin = (int) (7 * PublicResources.DP);
         Drawable bg = drawing_img.getBackground();
         bg.setColorFilter(bg_color, PorterDuff.Mode.SRC_IN);
+        drawing_img.setTag(tag);
         drawing_img.setBackground(bg);
         drawing_img.setLayoutParams(lp);
         drawing_img.setImageBitmap(drawing);
         // добавляем кастомизированный попап
-        Context wrapper = new ContextThemeWrapper(this, R.style.PopupMenuForDrawing);
-        PopupMenu popup = new PopupMenu(wrapper, drawing_img);
-        popup.getMenuInflater()
-                .inflate(R.menu.popup_menu_for_image_drawing, popup.getMenu());
+        // Context wrapper = new ContextThemeWrapper(this, R.style.PopupMenuForDrawing);
+//        PopupMenu popup = new PopupMenu(this, drawing_img);
+//        popup.getMenuInflater()
+//                .inflate(R.menu.popup_menu_for_image_drawing, popup.getMenu());
         // обработка действий при клике на PopupMenu
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                // получаем данные об рисунке и его положении в массиве
-                ArrayList<Bitmap> temp_drawings = TempResources.getTempDrawingsArray();
-                Bitmap draw_bmp = ((BitmapDrawable)
-                        (waiting_for_result.getDrawable())).getBitmap();
-                switch (menuItem.getItemId()) {
-                    case R.id.edit_draw_btn:
-                        // редактируем
-                        Intent intent = new Intent(Note.this, CanvasActivity.class);
-
-                        for (int index = 0; index < temp_drawings.size(); ++index) {
-                            if (draw_bmp.equals(temp_drawings.get(index))) {
-                                intent.putExtra(PublicResources.EXTRA_BG_CANVAS_COLOR,
-                                        TempResources.getTempBGsForDrawings().get(index));
-                                intent.putExtra(PublicResources.EXTRA_DRAWING_TEMP_INDEX,
-                                        index);
-                                TempResources.setTempDrawingFromCanvas(temp_drawings.get(index));
-                                break;
-                            }
-                        }
-                        intent.setAction(PublicResources.ACTION_EDIT_EXIST_CANVAS);
-                        startActivityForResult(intent, PublicResources.REQUEST_EDIT_CANVAS);
-                        return true;
-                    case R.id.remove_draw_btn:
-                        // удаляем
-                        for (int index = 0; index < temp_drawings.size(); ++index) {
-                            if (draw_bmp.equals(temp_drawings.get(index))) {
-                                TempResources.getTempDrawingsArray().remove(index);
-                                TempResources.getTempBGsForDrawings().remove(index);
-                                this_note_place_ll.removeView(waiting_for_result);
-
-                                // слияние текстовых частей
-//                                int views_count = this_note_place_ll.getChildCount();
-//                                for (int i = 0; i < views_count; ++i) {
-//                                    if (this_note_place_ll.getChildAt(i) == waiting_for_result) {
-//                                        // объединить текстовые поля в одно и удалить
-//                                    }
-//                                }
-                                break;
-                            }
-                        }
-                        Toast.makeText(Note.this,
-                                "Удалили, пиу-пиу!", Toast.LENGTH_SHORT).show();
-                        return true;
-                }
-                return true;
-            }
-        });
+//        popup.setOnMenuItemClickListener(popup_cl);
         // обработка клика по рисунку
         drawing_img.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -592,20 +587,75 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 waiting_for_result = temp;
                 TempResources.setTempDrawingFromCanvas(
                         ((BitmapDrawable) temp.getDrawable()).getBitmap());
-                popup.show();
+//                popup.show();
+                showPopupForDrawing(temp);
             }
         });
         return drawing_img;
+    }
+
+    // popup слушатель
+    private PopupMenu.OnMenuItemClickListener getPopupMenuItemCl() {
+        return (new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.edit_draw_btn) {
+                    // получаем данные о рисунке и его положении в массиве
+                    ArrayList<Bitmap> temp_drawings = TempResources.getTempDrawingsArray();
+                    Bitmap draw_bmp = ((BitmapDrawable)
+                            (waiting_for_result.getDrawable())).getBitmap();
+                    // редактируем
+                    Intent intent = new Intent(Note.this, CanvasActivity.class);
+                    for (int index = 0; index < temp_drawings.size(); ++index) {
+                        if (draw_bmp.equals(temp_drawings.get(index))) {
+                            intent.putExtra(PublicResources.EXTRA_BG_CANVAS_COLOR,
+                                    TempResources.getTempBGsForDrawings().get(index));
+                            intent.putExtra(PublicResources.EXTRA_DRAWING_TEMP_INDEX,
+                                    index);
+                            TempResources.setTempDrawingFromCanvas(temp_drawings.get(index));
+                            break;
+                        }
+                    }
+                    intent.putExtra(PublicResources.EXTRA_CANVAS_TAG,
+                            waiting_for_result.getTag().toString());
+                    intent.setAction(PublicResources.ACTION_EDIT_EXIST_CANVAS);
+                    startActivityForResult(intent, PublicResources.REQUEST_EDIT_CANVAS);
+                    return true;
+                }
+                else if (menuItem.getItemId() == R.id.remove_draw_btn) {
+                    // удаляем
+                    String file_name = waiting_for_result.getTag().toString();
+                    for (int i = 0; i < drawings.size(); ++i) {
+                        if (drawings.get(i).getDrawingFileName().equals(file_name)) {
+                            File file = PublicResources.createFile(file_name, Doings.PNG);
+                            drawings.remove(i);
+                            PublicResources.deleteFile(file);
+                            waiting_for_result.setOnClickListener(null);
+                            if (i < TempResources.getTempDrawingsArray().size()) {
+                                TempResources.getTempDrawingsArray().remove(i);
+                                TempResources.getTempBGsForDrawings().remove(i);
+                            }
+                            this_note_place_ll.removeView(waiting_for_result);
+                            break;
+                        }
+                    }
+                    Toast.makeText(Note.this,
+                            "Удалили, пиу-пиу!", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                return true;
+            }
+        });
     }
 
     private EditText getEditMainTextForNote(int child_layout) {
         return (EditText) inflater.inflate(child_layout, null, false);
     }
 
-    public void addImageDrawingToNote(int image_layout, int edit_text_layout,
+    public void addImageDrawingToNote(int image_layout, String tag,
                                       Bitmap drawing, int bg_color) {
         ImageView drawing_img = getImageDrawingForNote(image_layout,
-                drawing, bg_color);
+                drawing, bg_color, tag);
         // новые тектовые поля после рисунков
         // EditText main_text_place = getEditMainTextForNote(edit_text_layout);
         this_note_place_ll.addView(drawing_img);
@@ -621,11 +671,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     /**********************************************************************************
      * работа с файлами (рисунки) */
 
-    // удалить рисунок
-    public boolean deleteDrawing(File drawing_file) {
-        return drawing_file.delete();
-    }
-
     // добавить рисунок
     public void saveOrReplaceDrawing(File file, Bitmap bitmap) {
         OutputStream os;
@@ -637,12 +682,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         } catch (Exception e) {
             Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
         }
-    }
-
-    // распарсить рисунок из файла
-    public Bitmap parseBitmapFromDrawingFile(String file_path) {
-        File file = new File(file_path);
-        return BitmapFactory.decodeFile(file_path);
     }
 
     public String getNewFileName(Doings file_extension) {
@@ -657,27 +696,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         }
         String time_stamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
         return (extension + time_stamp + "_");
-    }
-
-    /**********************************************************************************
-     * обработка рисунков (новых и старых) */
-    public void setNewDrawing(int index) {
-//        String new_file_name = getNewFileName();
-//
-//        current_temp_drawing = null;
-//        current_temp_drawing = new DrawingStructure();
-//        current_temp_drawing.setDrawingFileName(new_file_name);
-    }
-
-    public void editExistDrawing(int index) {
-
-    }
-
-
-    /**********************************************************************************
-     * получение рисунков при открытии заметки */
-    public void getArrayListOfDrawings() {
-
     }
 
     /**********************************************************************************
@@ -696,15 +714,10 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
             new_note.setText(note_main_text.getText().toString());
             new_note.setPin(pin_ids[Integer.parseInt(pin_btn.getTag().toString())]);
             new_note.setBg(bg_color);
+            new_note.setDrawings(drawings);
         } catch (Exception e) {
             Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
         }
-//        String gson_note = NoteStructure.getNoteToGsonString(new_note);
-//        NoteStructure note_note = NoteStructure.getNoteFromGson(gson_note);
-//        Log.d(PublicResources.DEBUG_LOG_TAG,
-//                "name: " + note_note.getName() + "\n" +
-//                        "text: " + note_note.getText() + "\n" +
-//                        "pin: " + String.valueOf(note_note.getPin()));
         return new_note;
     }
 
@@ -750,4 +763,15 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         };
     }
 
+    /**********************************************************************************
+     * МЕТОДЫ ЖИЗНЕННОГО ЦИКЛА */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        colors = null;
+        pin_ids = null;
+        for (int i = 0; i < this_note_place_ll.getChildCount(); ++i) {
+            this_note_place_ll.getChildAt(i).setOnClickListener(null);
+        }
+    }
 }

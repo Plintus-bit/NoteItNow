@@ -36,6 +36,9 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
     ArrayList<Drawable> marker_width_icons;
     ArrayList<Drawable> marker_opacity_icons;
 
+    // тег текущего рисунка
+    private String tag;
+
     // inflater и ресурсы
     LayoutInflater inflater;
     Resources res;
@@ -76,26 +79,27 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
 
         setCurrentColorOnPanel(panel_buttons.get(4));
 
-        getIntents();
+        getIntentFromNote();
     }
 
-    private void getIntents() {
+    private void getIntentFromNote() {
         catched_result_intent = getIntent();
         if (catched_result_intent != null) {
-            if (catched_result_intent.getAction() == PublicResources.ACTION_EDIT_EXIST_CANVAS) {
+            String action = catched_result_intent.getAction();
+            if (action.equals(PublicResources.ACTION_EDIT_EXIST_CANVAS)) {
                 canvas_state = Doings.EXIST_CANVAS;
+                tag = catched_result_intent.getStringExtra(PublicResources.EXTRA_CANVAS_TAG);
                 int index = catched_result_intent.getIntExtra(
                         PublicResources.EXTRA_DRAWING_TEMP_INDEX,
                         PublicResources.EXTRA_DEFAULT_INT_VALUE);
                 Bitmap bmp = TempResources.getTempDrawingsArray()
                         .get(index);
-//                draw_view.setColor(catched_result_intent
-//                                .getIntExtra(PublicResourсes.EXTRA_BG_CANVAS_COLOR,
-//                                        PublicResourсes.DEFAULT_BG_COLOR),
-//                        Doings.BACKGROUND);
                 draw_view.setDrawing(bmp, catched_result_intent
                         .getIntExtra(PublicResources.EXTRA_BG_CANVAS_COLOR,
                                 PublicResources.DEFAULT_BG_COLOR));
+            }
+            else {
+                tag = "";
             }
         }
     }
@@ -482,8 +486,8 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         Intent intent = new Intent();
         if (canvas_state == Doings.EXIST_CANVAS) {
             // если пользователь стёр содержимое холста
-            boolean is_canvas_empty = draw_view.isCanvasEmpty();
-            intent.putExtra(PublicResources.EXTRA_CANVAS_IS_EMPTY, is_canvas_empty);
+            intent.putExtra(PublicResources.EXTRA_CANVAS_IS_EMPTY, draw_view.isCanvasEmpty());
+            intent.putExtra(PublicResources.EXTRA_CANVAS_IS_EDIT, draw_view.isCanvasEdit());
             // получаем индекс из временного массива
             int temp_index = catched_result_intent
                     .getIntExtra(PublicResources.EXTRA_DRAWING_TEMP_INDEX,
@@ -508,6 +512,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
                 TempResources.getTempDrawingsArray().add(draw_view.getDrawing());
             }
         }
+        intent.putExtra(PublicResources.EXTRA_CANVAS_TAG, tag);
         setResult(RESULT_OK, intent);
         finish();
     }

@@ -1,6 +1,7 @@
 package com.example.noteitnow;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -21,6 +22,9 @@ import com.example.noteitnow.statics_entity.PublicResources;
 public class DrawingView extends View {
     // пуст ли canvas
     private boolean is_empty;
+
+    // был ли отредактирован
+    private boolean is_edit;
 
     // Текущие цвета
     private int current_paint_color;
@@ -58,6 +62,7 @@ public class DrawingView extends View {
                         Bitmap.Config.ARGB_8888);
         canvas = new Canvas(canvas_bitmap);
         is_empty = true;
+        is_edit = false;
     }
 
     // методы для самого рисования
@@ -148,8 +153,9 @@ public class DrawingView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (is_empty) {
+        if (is_empty || !is_edit) {
             is_empty = false;
+            is_edit = true;
         }
         float x = event.getX(),
                 y = event.getY();
@@ -180,13 +186,6 @@ public class DrawingView extends View {
         canvas.drawBitmap(canvas_bitmap, 0, 0, draw_paint);
         canvas.drawPath(draw_path, draw_paint);
     }
-
-//    @Override
-//    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-//        super.onSizeChanged(w, h, oldw, oldh);
-//        canvas_bitmap = Bitmap.createBitmap(h, w, Bitmap.Config.ARGB_8888);
-//        canvas = new Canvas(canvas_bitmap);
-//    }
 
     public void clearCanvas() {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
@@ -284,10 +283,15 @@ public class DrawingView extends View {
         return canvas_bitmap;
     }
 
+    public boolean isCanvasEdit() {
+        return is_edit;
+    }
+
     // метод установки существующего рисунка
     public void setDrawing(Bitmap exist_drawing, int bg_color) {
         current_canvas_bg_color = bg_color;
-        canvas_bitmap = Bitmap.createBitmap(exist_drawing);
+        Bitmap immutable_bmt = Bitmap.createBitmap(exist_drawing);
+        canvas_bitmap = immutable_bmt.copy(Bitmap.Config.ARGB_8888, true);
         canvas = new Canvas(canvas_bitmap);
         is_empty = false;
     }

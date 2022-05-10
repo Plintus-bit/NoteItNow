@@ -5,15 +5,11 @@
     <item
         android:id="@+id/edit_draw_btn"
         android:title="@string/edit_btn"
-        android:icon="@drawable/ic_edit_icon"
-        android:iconTint="@color/shadow_deep_blue"
-        android:iconTintMode="src_in"/>
+        android:icon="@drawable/ic_edit_icon"/>
 
     <item
         android:id="@+id/remove_draw_btn"
         android:title="@string/remove_button"
-        android:icon="@drawable/ic_garbage_cart_icon"
-        android:iconTint="@color/dark_tomato"
-        android:iconTintMode="src_in"/>
+        android:icon="@drawable/ic_garbage_cart_icon"/>
 
 </menu>

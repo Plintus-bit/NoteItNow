@@ -18,8 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="10dp" >
+            android:gravity="center_vertical" >
             <ImageButton
                 android:id="@+id/note_pin_btn"
                 android:background="@drawable/icons_bg"
@@ -56,7 +55,7 @@
             android:maxHeight="210dp"
             android:ellipsize="marquee"
             android:marqueeRepeatLimit="24"
-            android:text="@string/default_not_empty_note_name"
+            android:text="@string/note_text"
             android:textColor="@color/mono_dark_gray"/>
     </LinearLayout>
 

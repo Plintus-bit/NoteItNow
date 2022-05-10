@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
@@ -58,11 +59,11 @@ public class PublicResources {
 
     // EXTRAS для передачи данных
     public static final String EXTRA_NOTE = "NOTE";
-    public static final String EXTRA_NOTE_DRAWINGS = "NOTE_DRAWINGS";
+    public static final String EXTRA_CANVAS_TAG = "CANVAS_TAG";
     public static final String EXTRA_BG_CANVAS_COLOR = "BG_CANVAS_COLOR";
     public static final String EXTRA_DRAWING_TEMP_INDEX = "DRAWING_TEMP_INDEX";
     public static final String EXTRA_NOTE_IS_EMPTY = "IS_EMPTY";
-    public static final String EXTRA_NOTE_NAME = "NOTE_NAME";
+    public static final String EXTRA_CANVAS_IS_EDIT = "IS_EDIT";
     public static final String EXTRA_CANVAS_IS_EMPTY = "CANVAS_IS_EMPTY";
 
     // ACTIONS для передачи данных
@@ -72,7 +73,7 @@ public class PublicResources {
     public static final String ACTION_CREATE_NEW_NOTE = "CREATE_NEW_NOTE";
 
     // Значения EXTRAS по умолчанию
-    public static final String EXTRA_DEFAULT_STRING_VALUE = "none";
+    public static final String EXTRA_DEFAULT_STRING_VALUE = "";
     public static final boolean EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE = true;
     public static final int EXTRA_DEFAULT_INT_VALUE = -1;
 
@@ -92,7 +93,6 @@ public class PublicResources {
     // расширения
     public static final String IMAGE_PNG = ".png";
     public static final String TEXT_GSON = ".txt";
-//    public static final String TEXT_GSON = ".json";
     public static final String IMAGE_PNG_PREFIX = "PNG_";
     public static final String TEXT_GSON_PREFIX = "GSON_";
 
@@ -104,74 +104,6 @@ public class PublicResources {
     public static int DEFAULT_BG_COLOR;
     public static final float DEFAULT_STROKE_WIDTH = 12;
     public static final int DEFAULT_OPACITY = (int) (20 * PublicResources.ALPHA / 100);
-
-    /**********************************************************************************
-     * Первый вариант разметки (устар.) */
-    private static LinearLayout getNoteLL(LayoutInflater inflater, int ll_id) {
-        LinearLayout ll = (LinearLayout) inflater.inflate(ll_id, null, false);
-        LinearLayout.LayoutParams lp = new LinearLayout
-                .LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) (56 * DP));
-        lp.bottomMargin = (int) (7 * DP);
-        ll.setClipToPadding(true);
-        ll.setLayoutParams(lp);
-        return ll;
-    }
-
-    /**********************************************************************************
-     * установка пина (устар.) */
-    private static void setNoteImagePinsBtn(LayoutInflater inflater, int child_layout,
-                                           LinearLayout parent_ll, Drawable pin_icon) {
-        ImageButton btn = (ImageButton) inflater
-                .inflate(child_layout, null, false);
-        btn.setImageDrawable(pin_icon);
-        LinearLayout.LayoutParams lp = new LinearLayout
-                .LayoutParams((int) (24 * DP), LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.leftMargin = (int) (6 * DP);
-        lp.rightMargin = (int) (14 * DP);
-        lp.weight = 1;
-        btn.setLayoutParams(lp);
-        parent_ll.addView(btn);
-    }
-
-    /**********************************************************************************
-     * установка названия заметки (устар.) */
-    private static void setNoteName(LayoutInflater inflater, int child_layout,
-                                    LinearLayout parent_ll, String note_name) {
-        TextView note = (TextView) inflater.inflate(child_layout, null, false);
-        LinearLayout.LayoutParams lp = new LinearLayout
-                .LayoutParams((int) (160 * DP),
-                              LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.weight = 10;
-        note.setLayoutParams(lp);
-        note.setText(note_name);
-        parent_ll.addView(note);
-    }
-
-    /**********************************************************************************
-     * установка специальных пинов "редактировать" и "удалить" (устар.) */
-    private static void setNoteSpecialImagePinsButton(LayoutInflater inflater, int child_layout,
-                                                      LinearLayout parent_ll) {
-        ImageButton special_btn = (ImageButton) inflater
-                .inflate(child_layout, null, false);
-        LinearLayout.LayoutParams lp = new LinearLayout
-                .LayoutParams((int) (24 * DP), LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.rightMargin = (int) (4 * DP);
-        lp.weight = 3;
-        special_btn.setLayoutParams(lp);
-        parent_ll.addView(special_btn);
-    }
-
-    /**********************************************************************************
-     * создание новой заметки (устар.) */
-    public static LinearLayout getNewNote(LayoutInflater inflater,
-                                          String note_name, Drawable pin_icon) {
-        LinearLayout ll_container = getNoteLL(inflater, R.layout.note_layout);
-        setNoteImagePinsBtn(inflater, R.layout.pin_btn_layout, ll_container, pin_icon);
-        setNoteName(inflater, R.layout.note_name_layout, ll_container, note_name);
-        setNoteSpecialImagePinsButton(inflater, R.layout.note_edit_pin_layout, ll_container);
-        setNoteSpecialImagePinsButton(inflater, R.layout.note_delete_pin_layout, ll_container);
-        return ll_container;
-    }
 
     /**********************************************************************************
      * создание цветового элемента */
@@ -232,7 +164,6 @@ public class PublicResources {
         parent.addView(btn);
     }
 
-
     /**********************************************************************************
      * Работа с json */
     // чтение json
@@ -284,6 +215,18 @@ public class PublicResources {
 //            Log.d(DEBUG_LOG_TAG, file.getAbsolutePath());
 //        }
         return file;
+    }
+
+    /**********************************************************************************
+     * удалить файл */
+    public static boolean deleteFile(File file) {
+        return file.delete();
+    }
+
+    // распарсить рисунок из файла
+    public static Bitmap parseBitmapFromDrawingFile(String file_path) {
+        File file = new File(file_path);
+        return BitmapFactory.decodeFile(file_path);
     }
 
 }

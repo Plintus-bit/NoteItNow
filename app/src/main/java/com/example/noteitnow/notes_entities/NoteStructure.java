@@ -1,5 +1,6 @@
 package com.example.noteitnow.notes_entities;
 
+import android.text.SpannableStringBuilder;
 import android.util.Log;
 
 import com.example.noteitnow.R;
@@ -7,6 +8,7 @@ import com.example.noteitnow.statics_entity.PublicResources;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class NoteStructure implements Serializable {
@@ -23,7 +25,9 @@ public class NoteStructure implements Serializable {
     // закреплена ли заметка
     private boolean is_pinned;
     // рисунки и их фоны
-     private ArrayList<DrawingStructure> drawings;
+    private ArrayList<DrawingStructure> drawings;
+
+    private ArrayList<TextSpans> spans;
 
     /**********************************************************************************
      * Конструкторы */
@@ -34,7 +38,8 @@ public class NoteStructure implements Serializable {
         bg = R.color.white;
         pin = R.drawable.ic_clip_icon;
         is_pinned = false;
-         drawings = null;
+        drawings = null;
+        spans = null;
     }
 
     public NoteStructure(String note_name) {
@@ -44,7 +49,8 @@ public class NoteStructure implements Serializable {
         bg = R.color.white;
         pin = R.drawable.ic_clip_icon;
         is_pinned = false;
-         drawings = null;
+        drawings = null;
+        spans = null;
     }
 
     public NoteStructure(String note_name, String note_text) {
@@ -54,7 +60,8 @@ public class NoteStructure implements Serializable {
         bg = R.color.white;
         pin = R.drawable.ic_clip_icon;
         is_pinned = false;
-         drawings = null;
+        drawings = null;
+        spans = null;
     }
 
     /**********************************************************************************
@@ -87,6 +94,10 @@ public class NoteStructure implements Serializable {
         this.file_name = file_name;
     }
 
+    public void setSpans(ArrayList<TextSpans> spans) {
+        this.spans = spans;
+    }
+
     /**********************************************************************************
      * Getter'ы */
     public String getName() {
@@ -117,30 +128,17 @@ public class NoteStructure implements Serializable {
         return this.file_name;
     }
 
+    public ArrayList<TextSpans> getSpans() {
+        return spans;
+    }
+
     /**********************************************************************************
      * GSON */
-//    public static Gson getNoteToGson(NoteStructure note) {
-//        Gson gson = new Gson();
-//        String gson_string = gson.toJson(note);
-//        // Log.d(PublicResources.DEBUG_LOG_TAG, gson_string);
-//        return gson;
-//    }
-
     public static String getNoteToGsonString(NoteStructure note) {
         Gson gson = new Gson();
         String gson_string = gson.toJson(note);
         return gson_string;
     }
-
-//    public static NoteStructure getNoteFromGson(Gson gson) {
-//        NoteStructure note = null;
-//        try {
-//            note = gson.fromJson(gson.toString(), NoteStructure.class);
-//        } catch (Exception e) {
-//            Log.d(PublicResources.DEBUG_LOG_TAG, e.getMessage());
-//        }
-//        return note;
-//    }
 
     public static NoteStructure getNoteFromGson(String gson_string) {
         Gson gson = new Gson();

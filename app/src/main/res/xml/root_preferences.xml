@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:title="Настройки темы">
+        <SwitchPreference
+            app:key="darcula_theme"
+            app:title="@string/darcula_theme"
+            app:summaryOff="@string/darcula_theme_not_active"
+            app:summaryOn="@string/darcula_theme_active"
+            app:enabled="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        app:title="Шрифт">
+        <ListPreference
+            app:key="font_size"
+            app:title="@string/font_size_title"
+            app:summary="@string/font_size_summary"
+            app:defaultValue="14"
+            app:entries="@array/font_sizes"
+            app:entryValues="@array/font_sizes"
+            app:dialogTitle="@string/font_size_chooser"
+            app:enabled="false"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

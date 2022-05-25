@@ -11,8 +11,13 @@ public enum Doings {
     GSON,
     PNG,
     TEXT,
-    TEXT_BG
-//    STYLE,
-//    LIST,
-//    COLOR,
+    TEXT_BG,
+    COLOR,
+    BOLD,
+    ITALIC,
+    NORMAL,
+    DELETION,
+    INSERTION,
+    LIST_POINT,
+    LIST_NUMERIC
 }

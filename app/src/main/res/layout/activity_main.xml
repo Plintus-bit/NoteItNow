@@ -4,10 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:layout_marginLeft="14dp"
-    android:layout_marginRight="14dp"
-    android:layout_marginTop="10dp">
+    tools:context=".MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/note_place_rv"
@@ -16,7 +13,9 @@
         android:layout_marginTop="2dp"
         android:paddingBottom="120dp"
         android:layout_marginBottom="60dp"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -27,7 +26,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:paddingBottom="10dp">
+        android:paddingBottom="10dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="10dp">
 
         <EditText
             android:id="@+id/search_bar"
@@ -37,17 +39,8 @@
             android:ems="10"
             android:inputType="textAutoComplete"
             android:paddingLeft="14dp"
-            android:layout_marginRight="10dp"
             android:hint="@string/search_bar"
             android:background="@drawable/search_bar"/>
-
-        <ImageView
-            android:id="@+id/search_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ic_search_icon"/>
-
 
     </LinearLayout>
 
@@ -63,4 +56,5 @@
         app:srcCompat="@drawable/ic_add_btn"
         tools:ignore="SpeakableTextPresentCheck"
         android:contentDescription="@string/add_btn_decript" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,15 +4,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.Html;
+import android.text.SpanWatcher;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,16 +40,21 @@ import android.widget.Toast;
 
 import com.example.noteitnow.notes_entities.DrawingStructure;
 import com.example.noteitnow.notes_entities.NoteStructure;
+import com.example.noteitnow.notes_entities.TextSpans;
 import com.example.noteitnow.statics_entity.Doings;
 import com.example.noteitnow.statics_entity.PublicResources;
 import com.example.noteitnow.statics_entity.TempResources;
 
+import org.xml.sax.XMLReader;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Note extends AppCompatActivity implements View.OnClickListener {
     private EditText note_name, note_main_text;
@@ -51,6 +69,35 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     // массив рисунков
     ArrayList<DrawingStructure> drawings;
+
+    // индексы изменений в тексте
+//    class EditIndexes {
+//        public int start_index = -1;
+//        public int end_index = -1;
+//        public int length = 0;
+//        public Doings edit_type = Doings.INSERTION;
+//
+//        public void setStartAndEnd(int start_index, int end_index) {
+//            this.start_index = start_index;
+//            this.end_index = end_index;
+//            updateLength();
+//        }
+//
+//        public void updateLength() {
+//            if (end_index < 0) {
+//                end_index = 0;
+//            }
+//            if (start_index < 0) {
+//                start_index = 0;
+//            }
+//            length = end_index - start_index;
+//        }
+//    }
+
+//    ArrayList<EditIndexes> text_edit_indexes;
+
+    // массив span'ов
+    ArrayList<TextSpans> spans;
 
     // текущее действие над заметкой, от которого зависит её выгрузка
     private String current_action;
@@ -108,6 +155,10 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     private Drawable active_panel_item_bg;
     private Drawable inactive_panel_item_bg;
 
+    // текущее выделение
+    private int start_selection;
+    private int end_selection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,6 +169,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         initOnCreate();
         
         getIntentFromMain();
+
+        setCursorOnEndOfEditText();
     }
 
     /**********************************************************************************
@@ -144,6 +197,14 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 main_ll.setBackgroundColor(bg_color);
                 current_file_name = exist_note.getFileName();
                 drawings = exist_note.getDrawings();
+                spans = exist_note.getSpans();
+                if (spans != null) {
+                    for (TextSpans current_span : spans) {
+                        setSpansOnText(current_span);
+                    }
+                } else {
+                    spans = new ArrayList<TextSpans>();
+                }
                 if (drawings != null) {
                     is_drawings_empty = false;
                     for (int i = 0; i < drawings.size(); ++i) {
@@ -204,10 +265,15 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.add_drawing_btn)));
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.marker_list_btn)));
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.text_background_color_btn)));
+        panel_views.add(new ExistView((ImageButton) findViewById(R.id.bold_btn)));
+        panel_views.add(new ExistView((ImageButton) findViewById(R.id.italic_btn)));
+        panel_views.add(new ExistView((ImageButton) findViewById(R.id.normal_btn)));
 
         // рисунков нет
         is_drawings_empty = true;
         drawings = new ArrayList<DrawingStructure>();
+        // спанов нет
+        spans = new ArrayList<TextSpans>();
 
         for (ExistView btn : panel_views) {
             btn.getItem().setOnClickListener(this);
@@ -215,14 +281,62 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         pin_btn.setOnClickListener(this);
         pin_btn.setTag(28);
 
+        // изменений в тексте нет
+//        text_edit_indexes = new ArrayList<EditIndexes>();
+
         note_name = findViewById(R.id.note_name);
         note_main_text = findViewById(R.id.note_main_text);
 
         TempResources.setTempPinIcon(pin_btn.getDrawable());
 
         popup_cl = getPopupMenuItemCl();
-
     }
+
+    /**********************************************************************************
+     * обработка меню */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.note_sharing_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                forActivityResult();
+                return true;
+            case R.id.share_btn:
+                Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                ArrayList<Uri> files_data = null;
+                // настройки намерения
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TITLE, note_name.getText().toString());
+                intent.putExtra(Intent.EXTRA_TEXT, note_main_text.getText().toString());
+
+                List<ResolveInfo> ready_for_get_activities = getPackageManager()
+                        .queryIntentActivities(intent, 0);
+                if (ready_for_get_activities.size() > 0) {
+                    startActivity(intent);   
+                }
+                else {
+                    Toast.makeText(this,
+                            R.string.activities_not_found,
+                            Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                // nothing
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private ArrayList<Uri> createTempUriForDrawings() {
+        ArrayList<Uri> files_uri = null;
+
+        return files_uri;
+    }
+
 
     // попап меню
     private void showPopupForDrawing(View view) {
@@ -240,8 +354,11 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         }
         if (items_hsv.getVisibility() == View.VISIBLE) {
             clearPanelItems();
-            return;
+            // return;
         }
+        start_selection = note_main_text.getSelectionStart();
+        end_selection = note_main_text.getSelectionEnd();
+        TextSpans span = null;
         switch (view.getId()) {
             case R.id.add_drawing_btn:
                 Intent intent = new Intent(this, CanvasActivity.class);
@@ -276,10 +393,124 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 break;
             case R.id.text_background_color_btn:
                 setColorChooserForPanelElement(panel_views.get(4), Doings.TEXT_BG);
+                Log.d(PublicResources.DEBUG_LOG_TAG,
+                        "start: " + note_main_text.getSelectionStart() + ";\nend: " +
+                                note_main_text.getSelectionEnd() + ";");
+                break;
+            case R.id.bold_btn:
+                span = new TextSpans(
+                        note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
+                        Doings.BOLD,
+                        Typeface.BOLD, Spannable.SPAN_USER);
+                spans.add(span);
+                setSpansOnText(span);
+                break;
+            case R.id.italic_btn:
+                span = new TextSpans(
+                        note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
+                        Doings.ITALIC,
+                        Typeface.ITALIC, Spannable.SPAN_USER);
+                spans.add(span);
+                setSpansOnText(span);
+                break;
+            case R.id.normal_btn:
+                span = new TextSpans(
+                        note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
+                        Doings.NORMAL,
+                        Typeface.NORMAL, Spannable.SPAN_USER);
+                spans.add(span);
+                setSpansOnText(span);
                 break;
             default:
                 // nothing
         }
+    }
+
+    /**********************************************************************************
+     * установка курсора в нужную позицию */
+    public void setCursorOnEndOfEditText() {
+        if (note_main_text.getText().length() != 0) {
+            note_main_text.setSelection(note_main_text.getText().length() - 1);
+        }
+    }
+
+    // зафиксировать изменение
+    public void collectEditIndex(int new_edit_index, Doings edit_type) {
+        // nothing
+    }
+
+
+    /**********************************************************************************
+     * проверки TextSpans */
+    // Если новый span что-то перекрывает, удалить старый
+    public void removeUselessTextSpans(TextSpans new_span) {
+        ArrayList<Integer> index_for_delete = new ArrayList<Integer>();
+        for (int i = 0; i < spans.size(); ++i) {
+            boolean is_span_type_equals = new_span.getSpanType() == spans.get(i).getSpanType();
+            if (!is_span_type_equals) {
+                continue;
+            }
+            // перебор возможных вариантов
+            switch (new_span.getSpanType()) {
+                case TEXT_BG:
+                case COLOR:
+                    if (new_span.getStart() <= spans.get(i).getStart()
+                    && new_span.getEnd() >= spans.get(i).getEnd()) {
+                        index_for_delete.add(i);
+                    }
+                    break;
+                default:
+                    // nothing
+            }
+        }
+        Log.d(PublicResources.DEBUG_LOG_TAG , "before delete: " + spans.size());
+        if (index_for_delete.size() > 0) {
+            for (int i = 0; i < index_for_delete.size(); ++i) {
+                spans.remove(index_for_delete.get(i) - i);
+            }
+        }
+        index_for_delete = null;
+        spans.add(new_span);
+        Log.d(PublicResources.DEBUG_LOG_TAG , "after delete and 1 insertion: " + spans.size());
+    }
+
+    public void fixPointsInTextSpans() {
+        // nothing
+    }
+
+    /**********************************************************************************
+     * Spannable */
+    public void setSpansOnText(TextSpans span) {
+//        Log.d(PublicResources.DEBUG_LOG_TAG, "start: " + start_selection
+//                + "; end: " + end_selection + ";");
+        SpannableStringBuilder span_text = new SpannableStringBuilder(
+                note_main_text.getText());
+        switch (span.getSpanType()) {
+            case COLOR:
+                span_text.setSpan(
+                        new ForegroundColorSpan(span.getData()),
+                        span.getStart(), span.getEnd(),
+                        span.getFlag());
+                break;
+            case TEXT_BG:
+                span_text.setSpan(
+                        new BackgroundColorSpan(span.getData()),
+                        span.getStart(), span.getEnd(),
+                        span.getFlag());
+                break;
+            case BOLD:
+            case NORMAL:
+            case ITALIC:
+                span_text.setSpan(
+                        new StyleSpan(span.getData()),
+                        span.getStart(), span.getEnd(),
+                        span.getFlag());
+                break;
+            default:
+                //nothing
+        }
+        note_main_text.setText(span_text);
+        setCursorOnEndOfEditText();
     }
 
     /**********************************************************************************
@@ -314,6 +545,38 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                     }
                 };
                 break;
+            case TEXT_BG:
+                cl = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        existView.getItem().setColorFilter(view.getId());
+                        current_text_bg_color = view.getId();
+                        clearPanelItems();
+                        TextSpans span = new TextSpans(start_selection, end_selection,
+                                Doings.TEXT_BG,
+                                current_text_bg_color, Spannable.SPAN_USER);
+                        setSpansOnText(span);
+//                        spans.add(span);
+                        removeUselessTextSpans(span);
+                    }
+                };
+                break;
+            case TEXT:
+                cl = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        existView.getItem().setColorFilter(view.getId());
+                        current_text_color = view.getId();
+                        clearPanelItems();
+                        TextSpans span = new TextSpans(start_selection, end_selection,
+                                Doings.COLOR,
+                                current_text_color, Spannable.SPAN_USER);
+                        setSpansOnText(span);
+//                        spans.add(span);
+                        removeUselessTextSpans(span);
+                    }
+                };
+                break;
             default:
                 cl = new View.OnClickListener() {
                     @Override
@@ -327,15 +590,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            forActivityResult();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onBackPressed() {
         forActivityResult();
     }
@@ -344,6 +598,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
      * возврат результата */
     private void forActivityResult() {
         Intent intent = new Intent();
+//        fixPointsInTextSpans();
         if (current_action.equals(PublicResources.ACTION_CREATE_NEW_NOTE)) {
             Log.d(PublicResources.DEBUG_LOG_TAG, ">>> create new");
             // код обработки закрытия
@@ -505,6 +760,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     private int[] fillColors() {
         return (new int[] {
+                res.getColor(R.color.transparent_, null),
                 res.getColor(R.color.black, null),
                 res.getColor(R.color.soft_cian, null),
                 res.getColor(R.color.soft_grass, null),
@@ -572,13 +828,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         drawing_img.setBackground(bg);
         drawing_img.setLayoutParams(lp);
         drawing_img.setImageBitmap(drawing);
-        // добавляем кастомизированный попап
-        // Context wrapper = new ContextThemeWrapper(this, R.style.PopupMenuForDrawing);
-//        PopupMenu popup = new PopupMenu(this, drawing_img);
-//        popup.getMenuInflater()
-//                .inflate(R.menu.popup_menu_for_image_drawing, popup.getMenu());
-        // обработка действий при клике на PopupMenu
-//        popup.setOnMenuItemClickListener(popup_cl);
         // обработка клика по рисунку
         drawing_img.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -587,7 +836,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 waiting_for_result = temp;
                 TempResources.setTempDrawingFromCanvas(
                         ((BitmapDrawable) temp.getDrawable()).getBitmap());
-//                popup.show();
                 showPopupForDrawing(temp);
             }
         });
@@ -715,6 +963,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
             new_note.setPin(pin_ids[Integer.parseInt(pin_btn.getTag().toString())]);
             new_note.setBg(bg_color);
             new_note.setDrawings(drawings);
+//            fixPointsInTextSpans();
+            new_note.setSpans(spans);
         } catch (Exception e) {
             Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
         }

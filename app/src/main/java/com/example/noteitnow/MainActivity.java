@@ -1,13 +1,21 @@
 package com.example.noteitnow;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,6 +23,7 @@ import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -29,6 +38,7 @@ import com.example.noteitnow.notes_entities.NoteStructure;
 import com.example.noteitnow.statics_entity.Doings;
 import com.example.noteitnow.statics_entity.PublicResources;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     PopupMenu.OnMenuItemClickListener popup_cl;
     // поиск
     private EditText search_bar;
+    // настройки
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void run() {
                     loadFiles();
+                    addSearchFilter(PublicResources.EXTRA_DEFAULT_STRING_VALUE);
                 }
             });
             take_notes_files.start();
@@ -92,7 +105,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**********************************************************************************
-     * начальная инициализвация */
+     * получение настроек */
+    private void collectPreferences() {
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+    }
+
+    @Override
+    protected void onResume() {
+        collectPreferences();
+        super.onResume();
+    }
+
+    /**********************************************************************************
+     * начальная инициализация */
     private void initOnCreate() {
         // получаю метрики устройства
         DisplayMetrics dm = getResources().getDisplayMetrics();
@@ -150,6 +175,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // обновление RecycleView
         note_place_rv = findViewById(R.id.note_place_rv);
         updateRecycleView();
+
+    }
+
+    /**********************************************************************************
+     * меню */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.side_navigation_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settings_btn:
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                // nothing
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**********************************************************************************
@@ -267,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ArrayList<NoteStructure> filtered_list = new ArrayList<NoteStructure>();
         for (NoteStructure current_note : notes) {
             if (current_note.getName().toLowerCase().contains(search_text.toLowerCase())
-            || current_note.getText().toLowerCase().contains(search_text.toLowerCase())) {
+            || current_note.getText().toString().toLowerCase().contains(search_text.toLowerCase())) {
                 filtered_list.add(current_note);
             }
         }
@@ -332,6 +379,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                .getNewNote(inflater, note_name, drawable);
 //        ll.addView(note);
     }
-
 
 }

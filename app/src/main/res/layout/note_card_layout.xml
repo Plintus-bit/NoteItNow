@@ -18,11 +18,12 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical" >
+            android:gravity="center_vertical"
+            android:padding="6dp" >
             <ImageButton
                 android:id="@+id/note_pin_btn"
                 android:background="@drawable/icons_bg"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:layout_weight="1"
                 android:minWidth="30dp"

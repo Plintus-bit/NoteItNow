@@ -16,9 +16,21 @@
         <item name="actionBarSize">60dp</item>
         <item name="actionBarStyle">@style/ActionBarStyle</item>
         <item name="floatingActionButtonStyle">@style/FloatingActBtnStyle</item>
+
+        <item name="android:textColor">@color/black</item>
     </style>
 
+    <!-- Верхняя панель -->
     <style name="Theme.NoteItNow.MainActivityActionBar">
         <item name="actionBarSize">80dp</item>
     </style>
+
+    <style name="Theme.NoteItNow.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.NoteItNow.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.NoteItNow.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

@@ -12,4 +12,20 @@
     <string name="remove_button">Удалить</string>
     <string name="note_text">Пока что тут пусто..</string>
     <string name="clip_btn">Закрепить/Открепить</string>
+
+    <!--    Для экрана настроек-->
+    <string name="theme_settings">Настройка темы приложения</string>
+    <string name="darcula_theme">Тёмная тема</string>
+    <string name="share_btn">Поделиться</string>
+    <string name="darcula_theme_not_active">Тёмная тема не активна</string>
+    <string name="darcula_theme_active">Тёмная тема активна</string>
+    <string name="font_size_chooser">Выберете размер шрифта</string>
+    <string name="font_size_title">Размер шрифта</string>
+    <string name="font_size_summary">Выбор размера шрифта</string>
+
+    <!--    предупреждения-->
+    <string name="activities_not_found">Нет подходящих приложений</string>
+    <string name="settings">Настройки</string>
+    <string name="notes_capture">Заметки</string>
+    <string name="nav_header_subtitle">sofa.byk@mail.ru</string>
 </resources>

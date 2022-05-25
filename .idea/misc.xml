@@ -82,6 +82,7 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_recycle_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_rocket_lunch_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_search_icon.xml" value="0.132" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_settings_icon.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_shopping_cart_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_sparkles_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_stats_icon.xml" value="0.132" />
@@ -101,13 +102,20 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/image_bg.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/not_active_button.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/not_active_search_bar.xml" value="0.3225" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/not_active_search_bar_dark.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/note_bg.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/popup_menu_bg.xml" value="0.1595" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/search_bar.xml" value="0.2985" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/search_bar_dark.xml" value="0.302" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/side_nav_bar.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_canvas.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_note.xml" value="0.1291390728476821" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_note.xml" value="0.25" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/content_navigation_drawer.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/drawing_layout.xml" value="0.12956810631229235" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/fragment_home.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/nav_header_main.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/nav_header_navigation_drawer.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/note_card_layout.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/note_delete_pin_layout.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/note_edit_pin_layout.xml" value="0.24444444444444444" />
@@ -118,9 +126,18 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/popup_menu_default_item_layout.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/popup_menu_item_layout.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/popup_menu_layout.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/settings_activity.xml" value="0.25" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/side_navigation_menu.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/menu/activity_main_drawer.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/menu/navigation_drawer.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/menu/note_sharing_menu.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/menu/popup_for_note.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/menu/popup_menu_for_image_drawing.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/menu/side_navigation_menu.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/menu/side_navigation_panel.xml" value="0.24444444444444444" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/xml/file_paths.xml" value="0.17291666666666666" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/xml/root_preferences.xml" value="0.24444444444444444" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/xml/settings_activity.xml" value="0.24444444444444444" />
       </map>
     </option>
   </component>

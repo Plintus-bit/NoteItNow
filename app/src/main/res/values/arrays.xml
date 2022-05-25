@@ -1,0 +1,11 @@
+<resources>
+    <!--    размеры шрифтов-->
+    <string-array name="font_sizes">
+        <item>10</item>
+        <item>12</item>
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+        <item>20</item>
+    </string-array>
+</resources>

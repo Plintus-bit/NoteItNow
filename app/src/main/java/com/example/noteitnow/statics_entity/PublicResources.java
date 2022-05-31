@@ -1,38 +1,18 @@
 package com.example.noteitnow.statics_entity;
 
-import android.app.admin.DeviceAdminReceiver;
-import android.bluetooth.BluetoothClass;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.noteitnow.Note;
 import com.example.noteitnow.R;
 import com.example.noteitnow.notes_entities.NoteStructure;
-
-import org.xmlpull.v1.XmlPullParser;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,11 +20,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.zip.Inflater;
+
 //PublicResourсes
 public class PublicResources {
     // Отладка
     public static final String DEBUG_LOG_TAG = "my debugging messages";
+
+    // Ключи для настроек
+    public static String THEME_KEY = "darcula_theme";
 
     // Единица измерения
     public static int device_width;
@@ -99,11 +82,15 @@ public class PublicResources {
     // для вычисления прозрачности
     public static final int ALPHA = 255;
 
-    // Default цвет
+    // Default значения
     public static int DEFAULT_COLOR;
     public static int DEFAULT_BG_COLOR;
     public static final float DEFAULT_STROKE_WIDTH = 12;
     public static final int DEFAULT_OPACITY = (int) (20 * PublicResources.ALPHA / 100);
+    public static final int DEFAULT_ID = -111;
+
+    // разделитель
+    public static final String SIMPLE_SEPARATOR = ":";
 
     /**********************************************************************************
      * создание цветового элемента */
@@ -229,4 +216,15 @@ public class PublicResources {
         return BitmapFactory.decodeFile(file_path);
     }
 
+    /**********************************************************************************
+     * собрать время создания файла */
+    public static ArrayList<Integer> getCollectedDate(String date) {
+        String[] temp_date_data = date.split(SIMPLE_SEPARATOR);
+        ArrayList<Integer> new_date = new ArrayList<Integer>();
+        for (int i = 0; i < temp_date_data.length; ++i) {
+//            Log.d(DEBUG_LOG_TAG, "date >>> " + temp_date_data[i]);
+            new_date.add(Integer.parseInt(temp_date_data[i]));
+        }
+        return new_date;
+    }
 }

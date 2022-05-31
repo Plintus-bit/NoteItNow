@@ -9,6 +9,7 @@ import android.graphics.DrawFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Xfermode;
@@ -38,6 +39,7 @@ public class DrawingView extends View {
 
     // Путь для хранения точек
     private Path draw_path;
+    private Point draw_point;
 
     // Сами кисти
     private Paint draw_paint;
@@ -47,6 +49,8 @@ public class DrawingView extends View {
 
     private Canvas canvas;
 
+    // Текущее действие
+    Doings what;
     // Нужные переменные
     private Bitmap canvas_bitmap;
 
@@ -107,6 +111,7 @@ public class DrawingView extends View {
 
     private void init() {
         draw_path = new Path();
+        draw_point = new Point();
         setDefaultColor();
         setDefaultStrokeWidth();
         current_marker_opacity = PublicResources.DEFAULT_OPACITY;
@@ -133,6 +138,8 @@ public class DrawingView extends View {
         draw_path.moveTo(x, y);
         this.x = x;
         this.y = y;
+        draw_point.set((int) x, (int) y);
+        what = Doings.POINT;
     }
 
     public void touchInMove(float x, float y) {
@@ -142,13 +149,21 @@ public class DrawingView extends View {
             draw_path.quadTo(this.x, this.y, (x + this.x) / 2, (y + this.y) / 2);
             this.x = x;
             this.y = y;
+            what = Doings.PATH;
         }
     }
 
-    public  void touchEnd(float x, float y) {
-        draw_path.lineTo(x, y);
-        canvas.drawPath(draw_path, draw_paint);
-        draw_path.reset();
+    public void touchEnd(float x, float y) {
+        switch (what) {
+            case PATH:
+                draw_path.lineTo(x, y);
+                canvas.drawPath(draw_path, draw_paint);
+                draw_path.reset();
+                break;
+            case POINT:
+                canvas.drawPoint(draw_point.x, draw_point.y, draw_paint);
+                break;
+        }
     }
 
     @Override
@@ -167,11 +182,9 @@ public class DrawingView extends View {
                 break;
             case MotionEvent.ACTION_MOVE:
                 touchInMove(x, y);
-                invalidate();
                 break;
             case MotionEvent.ACTION_UP:
                 touchEnd(x, y);
-                invalidate();
                 break;
         }
         marker.setAlpha(0xFF);

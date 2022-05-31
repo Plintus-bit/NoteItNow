@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -33,14 +33,24 @@
 
         <EditText
             android:id="@+id/search_bar"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_weight="8"
             android:ems="10"
             android:inputType="textAutoComplete"
             android:paddingLeft="14dp"
             android:hint="@string/search_bar"
             android:background="@drawable/search_bar"/>
+
+        <TextView
+            android:id="@+id/all_notes_view"
+            android:layout_marginTop="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/all_notes"
+            style="@style/HintStyles"
+            android:textSize="16sp"
+            android:textColor="@color/input_text_grey"/>
+
 
     </LinearLayout>
 

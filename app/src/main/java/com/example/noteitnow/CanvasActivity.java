@@ -25,6 +25,8 @@ import java.util.ArrayList;
 
 import com.example.noteitnow.statics_entity.Doings;
 import com.example.noteitnow.statics_entity.TempResources;
+import com.example.noteitnow.statics_entity.items.ColorItems;
+import com.example.noteitnow.statics_entity.items.DataItems;
 
 
 public class CanvasActivity extends AppCompatActivity implements View.OnClickListener {
@@ -32,12 +34,16 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
     int[] colors;
     int[] width_ids;
     int[] opacity_ids;
-    ArrayList<Drawable> width_icons;
+    ArrayList<Drawable> brush_width_icons;
     ArrayList<Drawable> marker_width_icons;
     ArrayList<Drawable> marker_opacity_icons;
 
     // тег текущего рисунка
     private String tag;
+
+    // элементы для панели инструментов
+    ColorItems color_items;
+    DataItems data_items;
 
     // inflater и ресурсы
     LayoutInflater inflater;
@@ -55,6 +61,9 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
     private ImageButton current_active_item;
     private Doings canvas_state;
     Intent catched_result_intent;
+
+    // текущий инструмент
+    private int current_tool_id;
 
     // Сеттеры и геттеры
 
@@ -109,6 +118,9 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         res = getResources();
         inflater = getLayoutInflater();
 
+        color_items = new ColorItems(res);
+        data_items = new DataItems(res);
+
         // устанавливаем цвета по умолчанию
         PublicResources.DEFAULT_COLOR = res.getColor(R.color.blue_total_black, null);
         PublicResources.DEFAULT_BG_COLOR = res.getColor(R.color.transparent_, null);
@@ -119,13 +131,12 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         main_rl.addView(draw_view);
 
         // Делаем Color List
-        colors = fillColors();
-        width_ids = fillStrokeWidthIds();
-        opacity_ids = fillOpacityIds();
-        width_icons = fillStrokeWidthIcons();
-        marker_width_icons = fillMarkerStrokeWidthIcons();
-        marker_opacity_icons = fillMarkerOpacityIcons();
 
+        colors = fillIds(Doings.COLOR);
+        opacity_ids = fillIds(Doings.OPACITY);
+        brush_width_icons = fillIcons(Doings.BRUSH);
+        marker_width_icons = fillIcons(Doings.MARKER);
+        marker_opacity_icons = fillIcons(Doings.OPACITY);
         // инициализация кнопок на панели и их состояний
         items_hsv = findViewById(R.id.items_hsv);
         active_panel_item_bg = getDrawable(R.drawable.active_panel_item_btn);
@@ -149,6 +160,9 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
 
         panel_buttons.get(0).setBackground(active_panel_item_bg);
         setCurrentActivePanelBtn(panel_buttons.get(0));
+
+        // текущий инструмент не выбран
+        current_tool_id = PublicResources.DEFAULT_ID;
     }
 
     @Override
@@ -173,7 +187,9 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         }
         if (items_hsv.getVisibility() == View.VISIBLE) {
             clearPanelItems();
-            return;
+            if (current_tool_id == view.getId()) {
+                return;
+            }
         }
         switch (view.getId()) {
             case R.id.draw_btn:
@@ -193,21 +209,29 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.draw_color_btn:
                 setColorChooserForPanelElement(panel_buttons.get(2), Doings.BRUSH);
+                current_tool_id = view.getId();
                 break;
             case R.id.marker_color_btn:
                 setColorChooserForPanelElement(panel_buttons.get(3), Doings.MARKER);
+                current_tool_id = view.getId();
                 break;
             case R.id.bg_change_btn:
                 setColorChooserForPanelElement(panel_buttons.get(4), Doings.BACKGROUND);
+                current_tool_id = view.getId();
                 break;
             case R.id.stroke_width_btn:
+                width_ids = fillIds(Doings.BRUSH);
                 setItemsChooserForPanelElement(panel_buttons.get(6), Doings.BRUSH);
+                current_tool_id = view.getId();
                 break;
             case R.id.marker_stroke_width_btn:
+                width_ids = fillIds(Doings.MARKER);
                 setItemsChooserForPanelElement(panel_buttons.get(7), Doings.MARKER);
+                current_tool_id = view.getId();
                 break;
             case R.id.marker_opacity_btn:
                 setItemsChooserForPanelElement(panel_buttons.get(8), Doings.OPACITY);
+                current_tool_id = view.getId();
                 break;
             case R.id.clear_btn:
                 draw_view.clearCanvas();
@@ -269,7 +293,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case BRUSH:
                 ll = PublicResources.getLLPanelWithItems(inflater,
-                        R.layout.popup_menu_layout, width_ids, width_icons);
+                        R.layout.popup_menu_layout, width_ids, brush_width_icons);
                 break;
             default:
                 // nothing
@@ -331,7 +355,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
                 int stroke_width = (int) (draw_view.getStroke(Doings.BRUSH));
                 for (int i = 0; i < width_ids.length; ++i) {
                     if (width_ids[i] == stroke_width) {
-                        panel_element.setImageDrawable(width_icons.get(i));
+                        panel_element.setImageDrawable(brush_width_icons.get(i));
                         break;
                     }
                 }
@@ -373,113 +397,30 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     // Заполнение
-
-    private int[] fillColors() {
-        return (new int[] {
-                res.getColor(R.color.soft_cian, null),
-                res.getColor(R.color.soft_grass, null),
-                res.getColor(R.color.soft_lemon, null),
-                res.getColor(R.color.soft_lime, null),
-                res.getColor(R.color.soft_orange, null),
-                res.getColor(R.color.soft_peach, null),
-                res.getColor(R.color.soft_pink, null),
-
-                res.getColor(R.color.dark_grass, null),
-                res.getColor(R.color.dark_grey_blue, null),
-                res.getColor(R.color.dark_night_sky, null),
-                res.getColor(R.color.dark_orange, null),
-                res.getColor(R.color.dark_pink, null),
-                res.getColor(R.color.dark_sea_wave, null),
-                res.getColor(R.color.dark_sky, null),
-                res.getColor(R.color.dark_tomato, null),
-
-                res.getColor(R.color.pastel_lavender, null),
-                res.getColor(R.color.pastel_lilac, null),
-                res.getColor(R.color.pastel_lime, null),
-                res.getColor(R.color.pastel_mint, null),
-                res.getColor(R.color.pastel_orange, null),
-                res.getColor(R.color.pastel_pink_lilac, null),
-                res.getColor(R.color.pastel_sky, null),
-
-                res.getColor(R.color.shadow_brown, null),
-                res.getColor(R.color.shadow_darkest_blue, null),
-                res.getColor(R.color.shadow_deep_blue, null),
-                res.getColor(R.color.shadow_magenta, null),
-                res.getColor(R.color.shadow_purple, null),
-                res.getColor(R.color.shadow_red, null),
-                res.getColor(R.color.shadow_sea, null),
-
-                res.getColor(R.color.mono_total_black, null),
-                res.getColor(R.color.mono_dark_gray, null),
-                res.getColor(R.color.mono_middle_grey, null),
-                res.getColor(R.color.mono_medium_grey, null),
-                res.getColor(R.color.mono_grey, null),
-                res.getColor(R.color.mono_light_grey, null),
-                res.getColor(R.color.mono_total_white, null),
-
-                res.getColor(R.color.blue_total_black, null),
-                res.getColor(R.color.blue_dark_gray, null),
-                res.getColor(R.color.blue_middle_grey, null),
-                res.getColor(R.color.blue_medium_grey, null),
-                res.getColor(R.color.blue_grey, null),
-                res.getColor(R.color.blue_light_grey, null),
-                res.getColor(R.color.blue_total_white, null),
-                res.getColor(R.color.transparent_, null)});
+    private int[] fillIds(Doings tool) {
+        switch (tool) {
+            case BRUSH:
+                return data_items.getBrushWidthIds();
+            case MARKER:
+                return data_items.getMarkerWidthIds();
+            case OPACITY:
+                return data_items.getOpacityIds();
+            case COLOR:
+                return color_items.getAllColors();
+        }
+        return null;
     }
 
-    private int[] fillStrokeWidthIds() {
-        return (new int[] {4, 6, 8, 12, 16, 24, 30, 36, 52, 72, 100});
-    }
-
-    private int[] fillOpacityIds() {
-        return (new int[] {
-                (int) (10 * PublicResources.ALPHA / 100),
-                (int) (20 * PublicResources.ALPHA / 100),
-                (int) (40 * PublicResources.ALPHA / 100),
-                (int) (60 * PublicResources.ALPHA / 100),
-                (int) (80 * PublicResources.ALPHA / 100)});
-    }
-
-    private ArrayList<Drawable> fillStrokeWidthIcons() {
-        ArrayList<Drawable> draw_list = new ArrayList<Drawable>();
-        draw_list.add(res.getDrawable(R.drawable.ic_4px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_6px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_8px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_12px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_16px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_24px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_30px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_36px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_52px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_72px, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_100px, null));
-        return draw_list;
-    }
-
-    private ArrayList<Drawable> fillMarkerStrokeWidthIcons() {
-        ArrayList<Drawable> draw_list = new ArrayList<Drawable>();
-        draw_list.add(res.getDrawable(R.drawable.ic_4px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_6px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_8px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_12px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_16px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_24px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_30px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_36px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_52px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_72px_sq, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_100px_sq, null));
-        return draw_list;
-    }
-
-    private ArrayList<Drawable> fillMarkerOpacityIcons() {
-        ArrayList<Drawable> draw_list = new ArrayList<Drawable>();
-        draw_list.add(res.getDrawable(R.drawable.ic_opacity_10, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_opacity_20, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_opacity_40, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_opacity_60, null));
-        draw_list.add(res.getDrawable(R.drawable.ic_opacity_80, null));
-        return draw_list;
+    private ArrayList<Drawable> fillIcons(Doings tool) {
+        switch (tool) {
+            case BRUSH:
+                return data_items.getBrushDrawable();
+            case MARKER:
+                return data_items.getMarkerDrawable();
+            case OPACITY:
+                return data_items.getOpacityDrawable();
+        }
+        return null;
     }
 
     private void forActivityResult() {

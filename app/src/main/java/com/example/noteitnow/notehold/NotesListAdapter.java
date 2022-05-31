@@ -1,10 +1,12 @@
 package com.example.noteitnow.notehold;
 
 import android.content.Context;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -57,6 +59,12 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
                 .setImageDrawable(context.getDrawable(notes_list.get(position).getPin()));
         holder.note_title_txt.setText(notes_list.get(position).getName());
         holder.note_text_txt.setText(notes_list.get(position).getText());
+        if (notes_list.get(position).getPinned()) {
+            holder.pinned_icon.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.pinned_icon.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -74,6 +82,7 @@ class NotesViewHolder extends RecyclerView.ViewHolder {
     CardView note_card_holder;
     ImageButton note_pin_btn;
     TextView note_title_txt, note_text_txt;
+    ImageView pinned_icon;
 
 
     public NotesViewHolder(@NonNull View itemView) {
@@ -82,6 +91,7 @@ class NotesViewHolder extends RecyclerView.ViewHolder {
         note_pin_btn = itemView.findViewById(R.id.note_pin_btn);
         note_title_txt = itemView.findViewById(R.id.note_title_txt);
         note_text_txt = itemView.findViewById(R.id.note_text_txt);
+        pinned_icon = itemView.findViewById(R.id.pinned_icon);
     }
 }
 

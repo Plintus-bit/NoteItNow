@@ -28,5 +28,6 @@
     <string name="settings">Настройки</string>
     <string name="notes_capture">Заметки</string>
     <string name="nav_header_subtitle">sofa.byk@mail.ru</string>
+    <string name="all_notes">Всего заметок:\ </string>
 
 </resources>

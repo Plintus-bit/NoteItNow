@@ -3,9 +3,10 @@ package com.example.noteitnow;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -16,11 +17,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.Html;
-import android.text.SpanWatcher;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.BulletSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
@@ -39,13 +40,16 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.example.noteitnow.notes_entities.DrawingStructure;
+import com.example.noteitnow.notes_entities.EditIndexes;
 import com.example.noteitnow.notes_entities.NoteStructure;
 import com.example.noteitnow.notes_entities.TextSpans;
+import com.example.noteitnow.notes_entities.TextSpansEditor;
 import com.example.noteitnow.statics_entity.Doings;
 import com.example.noteitnow.statics_entity.PublicResources;
 import com.example.noteitnow.statics_entity.TempResources;
-
-import org.xml.sax.XMLReader;
+import com.example.noteitnow.statics_entity.items.ColorItems;
+import com.example.noteitnow.statics_entity.items.DataItems;
+import com.google.android.material.shape.MarkerEdgeTreatment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,40 +68,16 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     public int[] pin_ids;
     public int[] colors;
 
+    ColorItems color_items;
+    DataItems data_items;
+
     // текущий цвет bg
     private int bg_color;
 
     // массив рисунков
     ArrayList<DrawingStructure> drawings;
 
-    // индексы изменений в тексте
-//    class EditIndexes {
-//        public int start_index = -1;
-//        public int end_index = -1;
-//        public int length = 0;
-//        public Doings edit_type = Doings.INSERTION;
-//
-//        public void setStartAndEnd(int start_index, int end_index) {
-//            this.start_index = start_index;
-//            this.end_index = end_index;
-//            updateLength();
-//        }
-//
-//        public void updateLength() {
-//            if (end_index < 0) {
-//                end_index = 0;
-//            }
-//            if (start_index < 0) {
-//                start_index = 0;
-//            }
-//            length = end_index - start_index;
-//        }
-//    }
-
-//    ArrayList<EditIndexes> text_edit_indexes;
-
-    // массив span'ов
-    ArrayList<TextSpans> spans;
+    TextSpansEditor spans_editor;
 
     // текущее действие над заметкой, от которого зависит её выгрузка
     private String current_action;
@@ -108,6 +88,9 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     // попап
     private PopupMenu.OnMenuItemClickListener popup_cl;
+
+    // настройки
+    private SharedPreferences preferences;
 
     // inflater
     LayoutInflater inflater;
@@ -146,6 +129,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     // HorizontalScrollView для загрузки элементов
     private HorizontalScrollView items_hsv;
+//            main_tools_panel_hsv;
     private ScrollView pins_sv;
     private LinearLayout pins_ll,
             main_ll,
@@ -158,6 +142,12 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     // текущее выделение
     private int start_selection;
     private int end_selection;
+
+    // текущие изменённые индексы
+    private int start_index, end_index, current_length;
+
+    // закреплена ли заметка
+    private boolean is_pinned;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,7 +168,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     private void getIntentFromMain() {
         Intent intent = getIntent();
         current_action = intent.getAction();
-        Log.d(PublicResources.DEBUG_LOG_TAG, current_action);
+//        Log.d(PublicResources.DEBUG_LOG_TAG, current_action);
 
         if (current_action.equals(PublicResources.ACTION_EDIT_EXIST_NOTE)) {
             try {
@@ -192,19 +182,23 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         break;
                     }
                 }
+                is_pinned = exist_note.getPinned();
                 pin_btn.setImageDrawable(res.getDrawable(exist_note.getPin(), null));
                 bg_color = exist_note.getBg();
                 main_ll.setBackgroundColor(bg_color);
                 current_file_name = exist_note.getFileName();
                 drawings = exist_note.getDrawings();
-                spans = exist_note.getSpans();
-                if (spans != null) {
-                    for (TextSpans current_span : spans) {
+                spans_editor = new TextSpansEditor(exist_note.getSpans());
+                ArrayList<TextSpans> temp_spans = spans_editor.getTextSpans();
+//                spans = exist_note.getSpans();
+                if (temp_spans != null) {
+                    for (TextSpans current_span : temp_spans) {
                         setSpansOnText(current_span);
                     }
                 } else {
-                    spans = new ArrayList<TextSpans>();
+                    spans_editor.setTextSpans(new ArrayList<TextSpans>());
                 }
+                temp_spans = null;
                 if (drawings != null) {
                     is_drawings_empty = false;
                     for (int i = 0; i < drawings.size(); ++i) {
@@ -227,11 +221,20 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     }
 
+    @Override
+    protected void onResume() {
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        super.onResume();
+    }
+
     /**********************************************************************************
      * начальная инициализация */
     private void initOnCreate() {
         // получение ресурсов
         res = getResources();
+
+        color_items = new ColorItems(res);
+        data_items = new DataItems(res);
 
         // сбор ресурсов
         pin_ids = getPinIds();
@@ -248,6 +251,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
         // инициализация панелек
         items_hsv = findViewById(R.id.items_hsv);
+//        main_tools_panel_hsv = findViewById(R.id.main_tools_panel_hsv);
         pins_sv = findViewById(R.id.pins_sv);
         pins_ll = findViewById(R.id.pins_ll);
         main_ll = findViewById(R.id.main_ll);
@@ -273,7 +277,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         is_drawings_empty = true;
         drawings = new ArrayList<DrawingStructure>();
         // спанов нет
-        spans = new ArrayList<TextSpans>();
+        spans_editor = new TextSpansEditor(new ArrayList<TextSpans>());
 
         for (ExistView btn : panel_views) {
             btn.getItem().setOnClickListener(this);
@@ -281,15 +285,45 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         pin_btn.setOnClickListener(this);
         pin_btn.setTag(28);
 
-        // изменений в тексте нет
-//        text_edit_indexes = new ArrayList<EditIndexes>();
-
         note_name = findViewById(R.id.note_name);
         note_main_text = findViewById(R.id.note_main_text);
 
         TempResources.setTempPinIcon(pin_btn.getDrawable());
 
         popup_cl = getPopupMenuItemCl();
+
+        // по умолчанию не закреплена
+        is_pinned = false;
+
+        setListenerOnNoteMainText();
+    }
+
+    private void setListenerOnNoteMainText() {
+        note_main_text.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence char_seq, int i0, int i1, int i2) {
+                start_index = note_main_text.getSelectionStart();
+                current_length = note_main_text.length();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence char_seq, int i0, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (!(note_main_text.length() == current_length)) {
+                    end_index = note_main_text.getSelectionStart();
+                    if (end_index < start_index) {
+                        spans_editor.addEditIndex(end_index, start_index, Doings.DELETION);
+                    }
+                    else {
+                        spans_editor.addEditIndex(start_index, end_index, Doings.INSERTION);
+                    }
+                }
+            }
+        });
     }
 
     /**********************************************************************************
@@ -352,10 +386,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         if (pins_sv.getVisibility() == View.VISIBLE) {
             clearPinsPanel();
         }
-        if (items_hsv.getVisibility() == View.VISIBLE) {
-            clearPanelItems();
-            // return;
-        }
         start_selection = note_main_text.getSelectionStart();
         end_selection = note_main_text.getSelectionEnd();
         TextSpans span = null;
@@ -393,16 +423,14 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 break;
             case R.id.text_background_color_btn:
                 setColorChooserForPanelElement(panel_views.get(4), Doings.TEXT_BG);
-                Log.d(PublicResources.DEBUG_LOG_TAG,
-                        "start: " + note_main_text.getSelectionStart() + ";\nend: " +
-                                note_main_text.getSelectionEnd() + ";");
                 break;
             case R.id.bold_btn:
                 span = new TextSpans(
                         note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
                         Doings.BOLD,
                         Typeface.BOLD, Spannable.SPAN_USER);
-                spans.add(span);
+                spans_editor.makeCleaning();
+                spans_editor.addSpan(span);
                 setSpansOnText(span);
                 break;
             case R.id.italic_btn:
@@ -410,7 +438,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
                         Doings.ITALIC,
                         Typeface.ITALIC, Spannable.SPAN_USER);
-                spans.add(span);
+                spans_editor.makeCleaning();
+                spans_editor.addSpan(span);
                 setSpansOnText(span);
                 break;
             case R.id.normal_btn:
@@ -418,7 +447,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
                         Doings.NORMAL,
                         Typeface.NORMAL, Spannable.SPAN_USER);
-                spans.add(span);
+                spans_editor.makeCleaning();
+                spans_editor.addSpan(span);
                 setSpansOnText(span);
                 break;
             default:
@@ -430,52 +460,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
      * установка курсора в нужную позицию */
     public void setCursorOnEndOfEditText() {
         if (note_main_text.getText().length() != 0) {
-            note_main_text.setSelection(note_main_text.getText().length() - 1);
+            note_main_text.setSelection(note_main_text.length() - 1);
         }
-    }
-
-    // зафиксировать изменение
-    public void collectEditIndex(int new_edit_index, Doings edit_type) {
-        // nothing
-    }
-
-
-    /**********************************************************************************
-     * проверки TextSpans */
-    // Если новый span что-то перекрывает, удалить старый
-    public void removeUselessTextSpans(TextSpans new_span) {
-        ArrayList<Integer> index_for_delete = new ArrayList<Integer>();
-        for (int i = 0; i < spans.size(); ++i) {
-            boolean is_span_type_equals = new_span.getSpanType() == spans.get(i).getSpanType();
-            if (!is_span_type_equals) {
-                continue;
-            }
-            // перебор возможных вариантов
-            switch (new_span.getSpanType()) {
-                case TEXT_BG:
-                case COLOR:
-                    if (new_span.getStart() <= spans.get(i).getStart()
-                    && new_span.getEnd() >= spans.get(i).getEnd()) {
-                        index_for_delete.add(i);
-                    }
-                    break;
-                default:
-                    // nothing
-            }
-        }
-        Log.d(PublicResources.DEBUG_LOG_TAG , "before delete: " + spans.size());
-        if (index_for_delete.size() > 0) {
-            for (int i = 0; i < index_for_delete.size(); ++i) {
-                spans.remove(index_for_delete.get(i) - i);
-            }
-        }
-        index_for_delete = null;
-        spans.add(new_span);
-        Log.d(PublicResources.DEBUG_LOG_TAG , "after delete and 1 insertion: " + spans.size());
-    }
-
-    public void fixPointsInTextSpans() {
-        // nothing
     }
 
     /**********************************************************************************
@@ -554,10 +540,11 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         clearPanelItems();
                         TextSpans span = new TextSpans(start_selection, end_selection,
                                 Doings.TEXT_BG,
-                                current_text_bg_color, Spannable.SPAN_USER);
+                                current_text_bg_color, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                         setSpansOnText(span);
-//                        spans.add(span);
-                        removeUselessTextSpans(span);
+                        // добавление и очистка
+                        spans_editor.makeCleaning();
+                        spans_editor.removeUselessTextSpans(span);
                     }
                 };
                 break;
@@ -570,10 +557,11 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         clearPanelItems();
                         TextSpans span = new TextSpans(start_selection, end_selection,
                                 Doings.COLOR,
-                                current_text_color, Spannable.SPAN_USER);
+                                current_text_color, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
                         setSpansOnText(span);
-//                        spans.add(span);
-                        removeUselessTextSpans(span);
+                        // добавление и очистка
+                        spans_editor.makeCleaning();
+                        spans_editor.removeUselessTextSpans(span);
                     }
                 };
                 break;
@@ -612,7 +600,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 intent.putExtra(PublicResources.EXTRA_NOTE, new_note);
                 // сохранение файла
                 File file = PublicResources.createFile(new_note.getFileName(), Doings.GSON);
-                Log.d(PublicResources.DEBUG_LOG_TAG, file.getAbsolutePath());
+//                Log.d(PublicResources.DEBUG_LOG_TAG, file.getAbsolutePath());
                 PublicResources.saveOrReplaceGson(file.getAbsolutePath(),
                         NoteStructure.getNoteToGsonString(new_note));
                 // TempResources.setTempPinIcon(pin_btn.getDrawable());
@@ -759,57 +747,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     // Заполнение
 
     private int[] fillColors() {
-        return (new int[] {
-                res.getColor(R.color.transparent_, null),
-                res.getColor(R.color.black, null),
-                res.getColor(R.color.soft_cian, null),
-                res.getColor(R.color.soft_grass, null),
-                res.getColor(R.color.soft_lemon, null),
-                res.getColor(R.color.soft_lime, null),
-                res.getColor(R.color.soft_orange, null),
-                res.getColor(R.color.soft_peach, null),
-                res.getColor(R.color.soft_pink, null),
-
-                res.getColor(R.color.dark_grass, null),
-                res.getColor(R.color.dark_grey_blue, null),
-                res.getColor(R.color.dark_night_sky, null),
-                res.getColor(R.color.dark_orange, null),
-                res.getColor(R.color.dark_pink, null),
-                res.getColor(R.color.dark_sea_wave, null),
-                res.getColor(R.color.dark_sky, null),
-                res.getColor(R.color.dark_tomato, null),
-
-                res.getColor(R.color.pastel_lavender, null),
-                res.getColor(R.color.pastel_lilac, null),
-                res.getColor(R.color.pastel_lime, null),
-                res.getColor(R.color.pastel_mint, null),
-                res.getColor(R.color.pastel_orange, null),
-                res.getColor(R.color.pastel_pink_lilac, null),
-                res.getColor(R.color.pastel_sky, null),
-
-                res.getColor(R.color.shadow_brown, null),
-                res.getColor(R.color.shadow_darkest_blue, null),
-                res.getColor(R.color.shadow_deep_blue, null),
-                res.getColor(R.color.shadow_magenta, null),
-                res.getColor(R.color.shadow_purple, null),
-                res.getColor(R.color.shadow_red, null),
-                res.getColor(R.color.shadow_sea, null),
-
-                res.getColor(R.color.mono_total_black, null),
-                res.getColor(R.color.mono_dark_gray, null),
-                res.getColor(R.color.mono_middle_grey, null),
-                res.getColor(R.color.mono_medium_grey, null),
-                res.getColor(R.color.mono_grey, null),
-                res.getColor(R.color.mono_light_grey, null),
-                res.getColor(R.color.mono_total_white, null),
-
-                res.getColor(R.color.blue_total_black, null),
-                res.getColor(R.color.blue_dark_gray, null),
-                res.getColor(R.color.blue_middle_grey, null),
-                res.getColor(R.color.blue_medium_grey, null),
-                res.getColor(R.color.blue_grey, null),
-                res.getColor(R.color.blue_light_grey, null),
-                res.getColor(R.color.blue_total_white, null)});
+        return color_items.getColorsWithoutTransparent();
     }
 
     // обработка добавления изображений
@@ -896,18 +834,11 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         });
     }
 
-    private EditText getEditMainTextForNote(int child_layout) {
-        return (EditText) inflater.inflate(child_layout, null, false);
-    }
-
     public void addImageDrawingToNote(int image_layout, String tag,
                                       Bitmap drawing, int bg_color) {
         ImageView drawing_img = getImageDrawingForNote(image_layout,
                 drawing, bg_color, tag);
-        // новые тектовые поля после рисунков
-        // EditText main_text_place = getEditMainTextForNote(edit_text_layout);
         this_note_place_ll.addView(drawing_img);
-        // this_note_place_ll.addView(main_text_place);
     }
 
     // очистка временного хранилища после успешного сохранения данных
@@ -963,8 +894,12 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
             new_note.setPin(pin_ids[Integer.parseInt(pin_btn.getTag().toString())]);
             new_note.setBg(bg_color);
             new_note.setDrawings(drawings);
-//            fixPointsInTextSpans();
-            new_note.setSpans(spans);
+            new_note.setIsPinned(is_pinned);
+            Date date = new Date();
+            SimpleDateFormat date_format = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
+            new_note.setDate(PublicResources.getCollectedDate(date_format.format(date)));
+            spans_editor.fixTextSpans();
+            new_note.setSpans(spans_editor.getTextSpans());
         } catch (Exception e) {
             Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
         }
@@ -974,43 +909,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     /**********************************************************************************
      * инициализация пинов */
     private int[] getPinIds() {
-        return new int[] {
-                R.drawable.ic_address_book_icon, R.drawable.ic_alarm_clock_icon,
-                R.drawable.ic_apple_icon, R.drawable.ic_avocado_icon,
-                R.drawable.ic_baseball_alt_icon, R.drawable.ic_baby_carriage_icon,
-                R.drawable.ic_backpack_icon, R.drawable.ic_balloons_icon,
-                R.drawable.ic_bandage_icon, R.drawable.ic_bank_icon,
-                R.drawable.ic_barber_shop_icon, R.drawable.ic_baseball_icon,
-                R.drawable.ic_woman_head_icon, R.drawable.ic_beach_icon,
-                R.drawable.ic_bed_icon, R.drawable.ic_beer_icon,
-                R.drawable.ic_big_finger_down_icon, R.drawable.ic_big_finger_up_icon,
-                R.drawable.ic_biking_icon, R.drawable.ic_birthday_cake_icon,
-                R.drawable.ic_bolt_icon, R.drawable.ic_book_icon,
-                R.drawable.ic_bookmark_icon, R.drawable.ic_briefcase_icon,
-                R.drawable.ic_broom_icon, R.drawable.ic_browser_icon,
-                R.drawable.ic_brush_icon, R.drawable.ic_bulb_icon,
-                R.drawable.ic_clip_icon,
-                R.drawable.ic_calculator_icon, R.drawable.ic_calendar_icon,
-                R.drawable.ic_call_history_icon, R.drawable.ic_camera_icon,
-                R.drawable.ic_car_mechanic_icon, R.drawable.ic_carrot_icon,
-                R.drawable.ic_cars_icon,
-                R.drawable.ic_cloud_rain_icon, R.drawable.ic_comment_info_icon,
-                R.drawable.ic_credit_card_icon, R.drawable.ic_gem_icon,
-                R.drawable.ic_gift_icon, R.drawable.ic_global_network_icon,
-                R.drawable.ic_graduation_cap_icon, R.drawable.ic_headphones_icon,
-                R.drawable.ic_heart_icon, R.drawable.ic_incognito_icon,
-                R.drawable.ic_key_icon, R.drawable.ic_lock_icon,
-                R.drawable.ic_map_marker_home_icon, R.drawable.ic_medal_icon,
-                R.drawable.ic_paw_icon, R.drawable.ic_pineapple_icon,
-                R.drawable.ic_portrait_icon, R.drawable.ic_recycle_icon,
-                R.drawable.ic_rocket_lunch_icon, R.drawable.ic_shopping_cart_icon,
-                R.drawable.ic_sparkles_icon, R.drawable.ic_stats_icon,
-                R.drawable.ic_subway_icon, R.drawable.ic_thumbtack_pin_icon,
-                R.drawable.ic_time_quarter_to_icon, R.drawable.ic_time_to_eat_icon,
-                R.drawable.ic_tooth_icon, R.drawable.ic_user_icon,
-                R.drawable.ic_users_icon, R.drawable.ic_video_icon,
-                R.drawable.ic_basketball_icon
-        };
+        return data_items.getDrawableItemsIds();
     }
 
     /**********************************************************************************

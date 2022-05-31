@@ -19,5 +19,7 @@ public enum Doings {
     DELETION,
     INSERTION,
     LIST_POINT,
-    LIST_NUMERIC
+    LIST_NUMERIC,
+    POINT,
+    PATH
 }

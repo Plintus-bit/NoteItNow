@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class NoteStructure implements Serializable {
     // название заметки
@@ -26,6 +27,8 @@ public class NoteStructure implements Serializable {
     private boolean is_pinned;
     // рисунки и их фоны
     private ArrayList<DrawingStructure> drawings;
+    // дата создания или редактирования
+    private ArrayList<Integer> date;
 
     private ArrayList<TextSpans> spans;
 
@@ -40,6 +43,7 @@ public class NoteStructure implements Serializable {
         is_pinned = false;
         drawings = null;
         spans = null;
+        date = null;
     }
 
     public NoteStructure(String note_name) {
@@ -51,6 +55,7 @@ public class NoteStructure implements Serializable {
         is_pinned = false;
         drawings = null;
         spans = null;
+        date = null;
     }
 
     public NoteStructure(String note_name, String note_text) {
@@ -62,6 +67,7 @@ public class NoteStructure implements Serializable {
         is_pinned = false;
         drawings = null;
         spans = null;
+        date = null;
     }
 
     /**********************************************************************************
@@ -98,6 +104,10 @@ public class NoteStructure implements Serializable {
         this.spans = spans;
     }
 
+    public void setDate(ArrayList<Integer> date) {
+        this.date = date;
+    }
+
     /**********************************************************************************
      * Getter'ы */
     public String getName() {
@@ -125,11 +135,15 @@ public class NoteStructure implements Serializable {
     }
 
     public String getFileName() {
-        return this.file_name;
+        return file_name;
     }
 
     public ArrayList<TextSpans> getSpans() {
         return spans;
+    }
+
+    public ArrayList<Integer> getDate() {
+        return date;
     }
 
     /**********************************************************************************

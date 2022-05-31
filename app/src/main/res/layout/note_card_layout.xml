@@ -45,6 +45,14 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/pinned_icon"
+                android:layout_marginLeft="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_pinned_icon"
+                android:layout_weight="0"
+                android:visibility="gone"/>
         </LinearLayout>
         <TextView
             android:id="@+id/note_text_txt"

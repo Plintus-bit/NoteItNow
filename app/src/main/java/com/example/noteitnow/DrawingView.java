@@ -69,6 +69,17 @@ public class DrawingView extends View {
         is_edit = false;
     }
 
+    public DrawingView(Context context, int height) {
+        super(context);
+        init();
+        canvas_bitmap = Bitmap
+                .createBitmap(PublicResources.device_width, height,
+                        Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(canvas_bitmap);
+        is_empty = true;
+        is_edit = false;
+    }
+
     // методы для самого рисования
 
     public void setMarker() {

@@ -7,11 +7,11 @@ import com.example.noteitnow.statics_entity.Doings;
 import java.io.Serializable;
 
 public class TextSpans implements Serializable {
-    int start;
-    int end;
-    Doings span_type;
-    int data;
-    int flag;
+    private int start;
+    private int end;
+    private Doings span_type;
+    private int data;
+    private int flag;
 
     /**********************************************************************************
      * Конструкторы */

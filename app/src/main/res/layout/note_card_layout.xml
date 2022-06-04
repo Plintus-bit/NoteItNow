@@ -42,7 +42,8 @@
                 android:textColor="@color/black"
                 android:text="@string/default_note_name"
                 android:paddingLeft="6dp"
-                android:ellipsize="end"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="1"
                 android:singleLine="true"
                 android:textStyle="bold" />
             <ImageView
@@ -66,6 +67,14 @@
             android:marqueeRepeatLimit="24"
             android:text="@string/note_text"
             android:textColor="@color/mono_dark_gray"/>
+        <TextView
+            android:id="@+id/note_date_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:padding="10dp"
+            android:text="@string/note_text"
+            android:textColor="@color/mono_medium_grey"/>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

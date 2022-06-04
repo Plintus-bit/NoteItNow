@@ -34,6 +34,9 @@ public class PublicResources {
     public static int device_height;
     public static double DP;
 
+    // Высота системной панели
+    public static final int SYSTEM_PANEL_HEIGHT = 50;
+
     // Запросы на какие действия рассматриваем
     public static final int REQUEST_NOTE_EMPTY = 1;
     public static final int REQUEST_NEW_CANVAS = 2;

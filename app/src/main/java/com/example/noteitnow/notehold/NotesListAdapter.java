@@ -1,6 +1,7 @@
 package com.example.noteitnow.notehold;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.noteitnow.R;
 import com.example.noteitnow.notes_entities.NoteStructure;
+import com.example.noteitnow.statics_entity.PublicResources;
+import com.example.noteitnow.statics_entity.items.Months;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +26,16 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
     Context context;
     ArrayList<NoteStructure> notes_list;
     NoteActionsListener note_cl;
+    Months months;
+    Resources res;
 
     public NotesListAdapter(Context context, ArrayList<NoteStructure> notes,
-                            NoteActionsListener note_cl) {
+                            NoteActionsListener note_cl, Resources res) {
+        this.res = res;
         this.context = context;
         this.notes_list = notes;
         this.note_cl = note_cl;
+        months = new Months();
     }
 
     @NonNull
@@ -57,7 +64,14 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
         holder.note_card_holder.setTag(notes_list.get(position).getFileName());
         holder.note_pin_btn
                 .setImageDrawable(context.getDrawable(notes_list.get(position).getPin()));
-        holder.note_title_txt.setText(notes_list.get(position).getName());
+        if (notes_list.get(position).getName().equals(PublicResources.EXTRA_DEFAULT_STRING_VALUE)) {
+            holder.note_title_txt
+                    .setText(getNewNoteName(notes_list.get(position).getText()));
+        }
+        else {
+            holder.note_title_txt
+                    .setText(notes_list.get(position).getName());
+        }
         holder.note_text_txt.setText(notes_list.get(position).getText());
         if (notes_list.get(position).getPinned()) {
             holder.pinned_icon.setVisibility(View.VISIBLE);
@@ -65,6 +79,57 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
         else {
             holder.pinned_icon.setVisibility(View.GONE);
         }
+        ArrayList<Integer> date = notes_list.get(position).getDate();
+        holder.note_date_txt.setText(getDateFormat(date));
+    }
+
+    private String getDateFormat(ArrayList<Integer> date) {
+        String date_format = "";
+        String current_month = res.getString(months.getMonth(date.get(1)));
+//        date_format += getNormalDateForm(date.get(3)) + ":"
+//                + getNormalDateForm(date.get(4)) + ", "
+//                + current_month + " "
+//                + String.valueOf(date.get(2)) +
+//                ", " + String.valueOf(date.get(0));
+        date_format += getNormalDateForm(date.get(3)) + ":"
+                + getNormalDateForm(date.get(4)) + ":"
+                + getNormalDateForm(date.get(5)) + ", "
+                + current_month + " "
+                + String.valueOf(date.get(2)) +
+                ", " + String.valueOf(date.get(0));
+        return date_format;
+    }
+
+    private String getNormalDateForm(Integer date_part) {
+        if (date_part < 10) {
+            return "0" + String.valueOf(date_part);
+        }
+        return String.valueOf(date_part);
+    }
+
+    /**********************************************************************************
+     * получение видимого имени заметки */
+    private String getNewNoteName(String text) {
+        String new_note_name = "";
+        final int MAX_CHARS_LEN = 14;
+        final String SEP = "..";
+        final int MAX_CHAR_LEN_WITH_SEP = 16;
+        if (text.length() > MAX_CHAR_LEN_WITH_SEP) {
+            for (int i = 0; i < MAX_CHARS_LEN; ++i) {
+                if (text.charAt(i) == '\n') {
+                    break;
+                }
+                else {
+                    new_note_name += text.charAt(i);
+                }
+            }
+            return new_note_name + SEP;
+        }
+        else if (text.length() == 0) {
+            new_note_name = PublicResources.DEFAULT_NOTE_NAME;
+            return new_note_name;
+        }
+        return text;
     }
 
     @Override
@@ -81,7 +146,7 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
 class NotesViewHolder extends RecyclerView.ViewHolder {
     CardView note_card_holder;
     ImageButton note_pin_btn;
-    TextView note_title_txt, note_text_txt;
+    TextView note_title_txt, note_text_txt, note_date_txt;
     ImageView pinned_icon;
 
 
@@ -92,6 +157,7 @@ class NotesViewHolder extends RecyclerView.ViewHolder {
         note_title_txt = itemView.findViewById(R.id.note_title_txt);
         note_text_txt = itemView.findViewById(R.id.note_text_txt);
         pinned_icon = itemView.findViewById(R.id.pinned_icon);
+        note_date_txt = itemView.findViewById(R.id.note_date_txt);
     }
 }
 

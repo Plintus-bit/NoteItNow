@@ -127,16 +127,18 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
 
         // инициализация для рисования
         main_rl = findViewById(R.id.main_place_rl);
-        draw_view = new DrawingView(this);
+        draw_view = new DrawingView(this,
+                (int) (PublicResources.device_height
+                        - PublicResources.SYSTEM_PANEL_HEIGHT * PublicResources.DP));
         main_rl.addView(draw_view);
 
         // Делаем Color List
-
         colors = fillIds(Doings.COLOR);
         opacity_ids = fillIds(Doings.OPACITY);
         brush_width_icons = fillIcons(Doings.BRUSH);
         marker_width_icons = fillIcons(Doings.MARKER);
         marker_opacity_icons = fillIcons(Doings.OPACITY);
+
         // инициализация кнопок на панели и их состояний
         items_hsv = findViewById(R.id.items_hsv);
         active_panel_item_bg = getDrawable(R.drawable.active_panel_item_btn);
@@ -392,6 +394,10 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.marker_color_btn:
                 panel_element.setColorFilter(draw_view
                         .getColor(Doings.MARKER), PorterDuff.Mode.SRC_IN);
+                break;
+            case R.id.bg_change_btn:
+                panel_element.setColorFilter(draw_view
+                        .getColor(Doings.BACKGROUND), PorterDuff.Mode.SRC_IN);
                 break;
         }
     }

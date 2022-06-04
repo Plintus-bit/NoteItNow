@@ -62,8 +62,8 @@ public class TextSpansEditor {
     public void removeUselessTextSpans(TextSpans new_span) {
         ArrayList<Integer> index_for_delete = new ArrayList<Integer>();
         for (int i = 0; i < spans.size(); ++i) {
-            boolean is_span_type_equals = new_span.getSpanType() == spans.get(i).getSpanType();
-            if (!is_span_type_equals) {
+            if (!isDataTypeEquals(new_span, spans.get(i))) {
+                // тут происходит особая обработка разнотипов
                 continue;
             }
             // перебор возможных вариантов
@@ -87,6 +87,40 @@ public class TextSpansEditor {
         }
         index_for_delete = null;
         spans.add(new_span);
+    }
+
+//    private int getIntersectionState(TextSpans new_span, TextSpans old_span) {
+//        if (new_span.getStart() >= old_span.getEnd()) {
+//            return AFTER;
+//        }
+//        else if (new_span.getEnd() <= old_span.getStart()) {
+//            return BEFORE;
+//        }
+//        // состояние INSIDE стирает декорирование с текста
+//        if (new_span.getStart() >= old_span.getStart()) {
+//            if (new_span.getEnd() <= old_span.getEnd()) {
+//                return INSIDE;
+//            }
+//            else {
+//                return AFTER_INSIDE;
+//            }
+//        }
+//        else {
+//            if (new_span.getEnd() < old_span.getEnd()) {
+//                return BEFORE_INSIDE;
+//            }
+//            else {
+//                return ALL;
+//            }
+//        }
+//    }
+
+    private boolean isDataTypeEquals(TextSpans value_1, TextSpans value_2) {
+        return value_1.getSpanType().equals(value_2.getSpanType());
+    }
+
+    private boolean isDataEquals(TextSpans value_1, TextSpans value_2) {
+        return value_1.getData() == value_2.getData();
     }
 
     /**********************************************************************************
@@ -150,9 +184,9 @@ public class TextSpansEditor {
                     --index;
                 }
             }
-            Log.d(PublicResources.DEBUG_LOG_TAG, "FIXED SPAN >>> " +
-                    String.valueOf(spans.get(index).getStart()) + " "
-                    + String.valueOf(spans.get(index).getEnd()));
+//            Log.d(PublicResources.DEBUG_LOG_TAG, "FIXED SPAN >>> " +
+//                    String.valueOf(spans.get(index).getStart()) + " "
+//                    + String.valueOf(spans.get(index).getEnd()));
         }
     }
 

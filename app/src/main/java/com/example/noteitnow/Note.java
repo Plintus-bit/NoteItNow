@@ -626,30 +626,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         finish();
     }
 
-    private String getNewNoteName(String text) {
-        String new_note_name = "";
-        final int MAX_CHARS_LEN = 16;
-        final int MAX_CHARS_LEN_WITH_END_CHARS = MAX_CHARS_LEN - 2;
-        final String END_CHARS = "..";
-        if (text.length() > MAX_CHARS_LEN) {
-            for (int i = 0; i < MAX_CHARS_LEN_WITH_END_CHARS; ++i) {
-                if (text.charAt(i) == '\n') {
-                    break;
-                }
-                else {
-                    new_note_name += text.charAt(i);
-                }
-            }
-            new_note_name += END_CHARS;
-            return new_note_name;
-        }
-        else if (text.length() == 0) {
-            new_note_name = PublicResources.DEFAULT_NOTE_NAME;
-            return new_note_name;
-        }
-        return text;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -884,12 +860,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         try {
             new_note = new NoteStructure();
             new_note.setFileName(getNewFileName(Doings.GSON));
-            if (note_name.getText().length() == 0) {
-                new_note.setName(getNewNoteName(note_main_text.getText().toString()));
-            }
-            else {
-                new_note.setName(note_name.getText().toString());
-            }
+            new_note.setName(note_name.getText().toString());
             new_note.setText(note_main_text.getText().toString());
             new_note.setPin(pin_ids[Integer.parseInt(pin_btn.getTag().toString())]);
             new_note.setBg(bg_color);

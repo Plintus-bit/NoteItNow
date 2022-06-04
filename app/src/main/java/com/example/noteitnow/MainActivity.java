@@ -44,6 +44,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Properties;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -116,12 +117,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**********************************************************************************
      * фильтрация заметок по дате */
     private ArrayList<NoteStructure> getDateFilteredNotes(ArrayList<NoteStructure> notes_list) {
-        for (int i = 1; i < notes_list.size(); ++i) {
-            for (int j = i - 1; j >= 0; --j) {
+        for (int i = 0; i < notes_list.size() - 1; ++i) {
+            for (int j = i + 1; j < notes_list.size(); ++j) {
                 int key_index = getDifferentKeysIndex(
                         notes_list.get(i).getDate(), notes_list.get(j).getDate());
                 if (notes_list.get(i).getDate().get(key_index)
-                        > notes_list.get(j).getDate().get(key_index)) {
+                        < notes_list.get(j).getDate().get(key_index)) {
                     NoteStructure temp_value = notes_list.get(i);
                     notes_list.set(i, notes_list.get(j));
                     notes_list.set(j, temp_value);
@@ -134,9 +135,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int getDifferentKeysIndex(ArrayList<Integer> value_1, ArrayList<Integer> value_2) {
         int key_index = 0;
         for (int i = 0; i < value_1.size(); ++i) {
-            if (!value_1.get(i).equals(value_2.get(i))) {
-                key_index = i;
-                break;
+            if (!(Objects.equals(value_1.get(i), value_2.get(i)))) {
+                return i;
             }
         }
         return key_index;
@@ -326,8 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    Toast.makeText(MainActivity.this,
 //                            "Закрепить/Открепить: " + selected_card.getTag().toString(),
 //                            Toast.LENGTH_SHORT).show();
-                    // закрепить или открепить,
-                    // но пока без обработки самого закрепления или открепления
+                    // закрепить или открепить
                     String file_name = selected_card.getTag().toString();
                     for (int i = 0; i < notes.size(); ++i) {
                         if (notes.get(i).getFileName().equals(file_name)) {
@@ -377,7 +376,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         note_place_rv.setHasFixedSize(true);
         note_place_rv.setLayoutManager(
                 new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL));
-        notes_adapter = new NotesListAdapter(MainActivity.this, notes, note_cl);
+        notes_adapter = new NotesListAdapter(MainActivity.this, notes, note_cl,
+                getResources());
         note_place_rv.setAdapter(notes_adapter);
     }
 
@@ -452,7 +452,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // nothing
             }
             sortNotes();
-            notes_adapter.notifyDataSetChanged();
             addSearchFilter(PublicResources.EXTRA_DEFAULT_STRING_VALUE);
         }
     }

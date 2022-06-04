@@ -72,7 +72,8 @@
                 <ImageButton
                     android:id="@+id/bg_change_btn"
                     style="@style/PanelIcon"
-                    app:srcCompat="@drawable/ic_bg_icon"
+                    app:srcCompat="@drawable/ic_bg_change_icon"
+                    android:background="@drawable/ic_bg_change_bg_icon"
                     tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
                 <ImageButton

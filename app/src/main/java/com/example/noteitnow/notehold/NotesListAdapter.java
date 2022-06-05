@@ -16,18 +16,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.noteitnow.R;
 import com.example.noteitnow.notes_entities.NoteStructure;
+import com.example.noteitnow.statics_entity.Doings;
 import com.example.noteitnow.statics_entity.PublicResources;
+import com.example.noteitnow.statics_entity.items.ColorItems;
 import com.example.noteitnow.statics_entity.items.Months;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
     Context context;
     ArrayList<NoteStructure> notes_list;
     NoteActionsListener note_cl;
+    int[] colors;
     Months months;
     Resources res;
+    boolean is_darcula_active;
 
     public NotesListAdapter(Context context, ArrayList<NoteStructure> notes,
                             NoteActionsListener note_cl, Resources res) {
@@ -36,6 +41,9 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
         this.notes_list = notes;
         this.note_cl = note_cl;
         months = new Months();
+        colors = new ColorItems(res).getColors(Doings.PASTEL_SOFT_PINNED);
+        is_darcula_active = PublicResources.preferences
+                .getBoolean(PublicResources.THEME_KEY, false);
     }
 
     @NonNull
@@ -60,11 +68,30 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
                 return false;
             }
         });
-        holder.note_card_holder.setCardBackgroundColor(notes_list.get(position).getBg());
+        if (is_darcula_active) {
+            holder.note_title_txt.setTextColor(res.getColor(R.color.very_light_grey, null));
+            holder.note_text_txt.setTextColor(res.getColor(R.color.mono_light_grey, null));
+            holder.note_pin_btn.setColorFilter(res.getColor(R.color.mono_medium_grey, null));
+            holder.note_date_txt.setTextColor(res.getColor(R.color.mono_middle_grey, null));
+        }
+        if (notes_list.get(position).getBg() == PublicResources.DEFAULT_BG_COLOR_VALUE) {
+            if (is_darcula_active) {
+                holder.note_card_holder
+                        .setCardBackgroundColor(res.getColor(R.color.darkest_grey, null));
+            }
+            else {
+                holder.note_card_holder
+                        .setCardBackgroundColor(res.getColor(R.color.white, null));
+            }
+        }
+        else {
+            holder.note_card_holder.setCardBackgroundColor(notes_list.get(position).getBg());
+        }
         holder.note_card_holder.setTag(notes_list.get(position).getFileName());
         holder.note_pin_btn
                 .setImageDrawable(context.getDrawable(notes_list.get(position).getPin()));
-        if (notes_list.get(position).getName().equals(PublicResources.EXTRA_DEFAULT_STRING_VALUE)) {
+        if (notes_list.get(position).getName()
+                .equals(PublicResources.EXTRA_DEFAULT_STRING_VALUE)) {
             holder.note_title_txt
                     .setText(getNewNoteName(notes_list.get(position).getText()));
         }
@@ -75,6 +102,7 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
         holder.note_text_txt.setText(notes_list.get(position).getText());
         if (notes_list.get(position).getPinned()) {
             holder.pinned_icon.setVisibility(View.VISIBLE);
+            holder.pinned_icon.setColorFilter(getRandomColor());
         }
         else {
             holder.pinned_icon.setVisibility(View.GONE);
@@ -86,11 +114,6 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
     private String getDateFormat(ArrayList<Integer> date) {
         String date_format = "";
         String current_month = res.getString(months.getMonth(date.get(1)));
-//        date_format += getNormalDateForm(date.get(3)) + ":"
-//                + getNormalDateForm(date.get(4)) + ", "
-//                + current_month + " "
-//                + String.valueOf(date.get(2)) +
-//                ", " + String.valueOf(date.get(0));
         date_format += getNormalDateForm(date.get(3)) + ":"
                 + getNormalDateForm(date.get(4)) + ":"
                 + getNormalDateForm(date.get(5)) + ", "
@@ -100,11 +123,20 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
         return date_format;
     }
 
+    private int getRandomColor() {
+        Random random_int = new Random();
+        return colors[random_int.nextInt(colors.length)];
+    }
+
     private String getNormalDateForm(Integer date_part) {
         if (date_part < 10) {
             return "0" + String.valueOf(date_part);
         }
         return String.valueOf(date_part);
+    }
+
+    public void setIsDarculaActive(boolean is_darcula_active) {
+        this.is_darcula_active = is_darcula_active;
     }
 
     /**********************************************************************************

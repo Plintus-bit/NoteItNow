@@ -5,6 +5,8 @@
       <map>
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/active_panel_item_btn.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/active_search_bar.xml" value="0.3225" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/bg_grid_large.xml" value="0.302" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/bg_grid_medium.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/card_note_name_bg.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/floating_btn_bg.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_add_btn.xml" value="0.3225" />
@@ -26,6 +28,7 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_beer_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_bg_for_text_color_place.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_bg_for_text_color_place_1.xml" value="0.3225" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_bg_grid_large_img.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_bg_icon.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_big_finger_down_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_big_finger_up_icon.xml" value="0.132" />
@@ -110,6 +113,7 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/search_bar.xml" value="0.2985" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/search_bar_dark.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/side_nav_bar.xml" value="0.302" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/font/fonts.xml" value="0.26458333333333334" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_canvas.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_note.xml" value="0.25" />

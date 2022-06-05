@@ -1,5 +1,6 @@
 package com.example.noteitnow.statics_entity;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
@@ -63,9 +64,6 @@ public class PublicResources {
     public static final boolean EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE = true;
     public static final int EXTRA_DEFAULT_INT_VALUE = -1;
 
-    // Название заметки по умолчанию, если отсутсвует и название, и текст
-    public static String DEFAULT_NOTE_NAME;
-
     // то, что касается FileProvider
     public static final String FILE_PROVIDER = "com.example.noteitnow.fileprovider";
     public static final String[] FILES_DIRECTORY = new String[]
@@ -86,14 +84,19 @@ public class PublicResources {
     public static final int ALPHA = 255;
 
     // Default значения
+    public static String DEFAULT_NOTE_NAME;
     public static int DEFAULT_COLOR;
     public static int DEFAULT_BG_COLOR;
+    public static int DEFAULT_BG_COLOR_VALUE = -101;
     public static final float DEFAULT_STROKE_WIDTH = 12;
     public static final int DEFAULT_OPACITY = (int) (20 * PublicResources.ALPHA / 100);
     public static final int DEFAULT_ID = -111;
 
     // разделитель
     public static final String SIMPLE_SEPARATOR = ":";
+
+    // настройки
+    public static SharedPreferences preferences;
 
     /**********************************************************************************
      * создание цветового элемента */

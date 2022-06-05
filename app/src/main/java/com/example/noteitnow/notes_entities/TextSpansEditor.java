@@ -18,6 +18,7 @@ public class TextSpansEditor {
     private final static int BEFORE_INSIDE = 2;
     private final static int AFTER_INSIDE = 3;
     private final static int ALL = 4;
+    private final static int ALL_INSIDE = 5;
 
     // массив span'ов
     private ArrayList<TextSpans> spans;
@@ -88,32 +89,6 @@ public class TextSpansEditor {
         index_for_delete = null;
         spans.add(new_span);
     }
-
-//    private int getIntersectionState(TextSpans new_span, TextSpans old_span) {
-//        if (new_span.getStart() >= old_span.getEnd()) {
-//            return AFTER;
-//        }
-//        else if (new_span.getEnd() <= old_span.getStart()) {
-//            return BEFORE;
-//        }
-//        // состояние INSIDE стирает декорирование с текста
-//        if (new_span.getStart() >= old_span.getStart()) {
-//            if (new_span.getEnd() <= old_span.getEnd()) {
-//                return INSIDE;
-//            }
-//            else {
-//                return AFTER_INSIDE;
-//            }
-//        }
-//        else {
-//            if (new_span.getEnd() < old_span.getEnd()) {
-//                return BEFORE_INSIDE;
-//            }
-//            else {
-//                return ALL;
-//            }
-//        }
-//    }
 
     private boolean isDataTypeEquals(TextSpans value_1, TextSpans value_2) {
         return value_1.getSpanType().equals(value_2.getSpanType());
@@ -225,23 +200,12 @@ public class TextSpansEditor {
                 spans.set(span_index, temp_span);
                 break;
             case ALL:
+            case ALL_INSIDE:
                 spans.remove(span_index);
                 break;
             case AFTER:
             default:
                 // nothing
-        }
-    }
-
-    private int getDeletionState(EditIndexes new_edit_indexes, EditIndexes old_edit_indexes) {
-        if (new_edit_indexes.getEnd() <= old_edit_indexes.getStart()) {
-            return BEFORE;
-        }
-        else if (new_edit_indexes.getStart() >= old_edit_indexes.getEnd()) {
-            return AFTER;
-        }
-        else {
-            return getDeletionInsideState(new_edit_indexes, old_edit_indexes);
         }
     }
 
@@ -258,9 +222,25 @@ public class TextSpansEditor {
         return UNKNOWN_STATE;
     }
 
+    private int getDeletionState(EditIndexes new_edit_indexes, EditIndexes old_edit_indexes) {
+        if (new_edit_indexes.getEnd() <= old_edit_indexes.getStart()) {
+            return BEFORE;
+        }
+        else if (new_edit_indexes.getStart() >= old_edit_indexes.getEnd()) {
+            return AFTER;
+        }
+        else {
+            return getDeletionInsideState(new_edit_indexes, old_edit_indexes);
+        }
+    }
+
     private int getDeletionInsideState(EditIndexes new_edit_indexes, EditIndexes old_edit_indexes) {
         if (new_edit_indexes.getStart() <= old_edit_indexes.getStart()) {
-            if (new_edit_indexes.getEnd() >= old_edit_indexes.getEnd()) {
+            if (new_edit_indexes.getEnd() == old_edit_indexes.getEnd()
+                    && new_edit_indexes.getStart() == old_edit_indexes.getStart()) {
+                return ALL_INSIDE;
+            }
+            else if (new_edit_indexes.getEnd() > old_edit_indexes.getEnd()) {
                 return ALL;
             }
             else if (new_edit_indexes.getStart() < old_edit_indexes.getStart()) {

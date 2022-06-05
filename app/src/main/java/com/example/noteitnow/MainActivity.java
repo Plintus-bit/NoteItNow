@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     PopupMenu.OnMenuItemClickListener popup_cl;
     // поиск
     private EditText search_bar;
-    // настройки
-    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,8 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**********************************************************************************
      * получение настроек */
     private void collectPreferences() {
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean is_darcula_active = preferences
+        boolean is_darcula_active = PublicResources.preferences
                 .getBoolean(PublicResources.THEME_KEY, false);
         if (is_darcula_active) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -185,6 +182,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**********************************************************************************
      * начальная инициализация */
     private void initOnCreate() {
+        // получаю настройки
+        PublicResources.preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         // получаю метрики устройства
         DisplayMetrics dm = getResources().getDisplayMetrics();
         PublicResources.device_width = dm.widthPixels;
@@ -378,6 +378,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL));
         notes_adapter = new NotesListAdapter(MainActivity.this, notes, note_cl,
                 getResources());
+        notes_adapter.setIsDarculaActive(PublicResources.preferences
+                .getBoolean(PublicResources.THEME_KEY, false));
         note_place_rv.setAdapter(notes_adapter);
     }
 

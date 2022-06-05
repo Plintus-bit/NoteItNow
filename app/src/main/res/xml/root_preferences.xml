@@ -6,8 +6,7 @@
             app:key="darcula_theme"
             app:title="@string/darcula_theme"
             app:summaryOff="@string/darcula_theme_not_active"
-            app:summaryOn="@string/darcula_theme_active"
-            app:enabled="false" />
+            app:summaryOn="@string/darcula_theme_active" />
     </PreferenceCategory>
     <PreferenceCategory
         app:title="Шрифт">

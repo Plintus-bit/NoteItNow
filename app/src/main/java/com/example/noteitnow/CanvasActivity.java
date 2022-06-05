@@ -55,7 +55,8 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
     private Drawable active_panel_item_bg;
     private Drawable inactive_panel_item_bg;
     private ImageButton current_active_panel_btn;
-    private HorizontalScrollView items_hsv;
+    private HorizontalScrollView items_hsv,
+            tools_panel_hsv;
 
     // Временные элементы этого класса
     private ImageButton current_active_item;
@@ -89,6 +90,21 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         setCurrentColorOnPanel(panel_buttons.get(4));
 
         getIntentFromNote();
+
+        setThemePropertiesToNote();
+    }
+
+    private void setThemePropertiesToNote() {
+        boolean is_darcula_active = PublicResources.preferences
+                .getBoolean(PublicResources.THEME_KEY, false);
+        if (is_darcula_active) {
+            tools_panel_hsv
+                    .setBackgroundColor(res.getColor(R.color.mono_middle_grey, null));
+            items_hsv.setBackgroundColor(res.getColor(R.color.blue_middle_grey, null));
+            active_panel_item_bg
+                    .setColorFilter(res.getColor(R.color.mono_medium_grey, null),
+                            PorterDuff.Mode.SRC_IN);
+        }
     }
 
     private void getIntentFromNote() {
@@ -141,6 +157,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
 
         // инициализация кнопок на панели и их состояний
         items_hsv = findViewById(R.id.items_hsv);
+        tools_panel_hsv = findViewById(R.id.tools_panel_hsv);
         active_panel_item_bg = getDrawable(R.drawable.active_panel_item_btn);
         inactive_panel_item_bg = getDrawable(R.drawable.icons_bg);
         panel_buttons = new ArrayList<ImageButton>();
@@ -373,7 +390,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.marker_opacity_btn:
                 int marker_opacity = draw_view.getOpacity(Doings.OPACITY);
-                for (int i = 0; i < width_ids.length; ++i) {
+                for (int i = 0; i < opacity_ids.length; ++i) {
                     if (opacity_ids[i] == marker_opacity) {
                         panel_element.setImageDrawable(marker_opacity_icons.get(i));
                         break;

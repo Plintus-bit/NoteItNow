@@ -2,6 +2,7 @@
 <resources>
     <color name="transparent_">#00FFFFFF</color>
     <color name="black">#FF303030</color>
+    <color name="darkest_grey">#424242</color>
     <color name="dark_grey_blue">#324050</color>
     <color name="input_text_grey">#939393</color>
     <color name="input_border_grey">#E6EBED</color>

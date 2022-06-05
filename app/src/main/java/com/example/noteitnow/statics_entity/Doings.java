@@ -21,5 +21,7 @@ public enum Doings {
     LIST_POINT,
     LIST_NUMERIC,
     POINT,
-    PATH
+    PATH,
+    PINNED,
+    PASTEL_SOFT_PINNED
 }

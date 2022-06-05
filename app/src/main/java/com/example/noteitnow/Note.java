@@ -3,6 +3,7 @@ package com.example.noteitnow;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
 import android.content.Intent;
@@ -89,9 +90,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     // попап
     private PopupMenu.OnMenuItemClickListener popup_cl;
 
-    // настройки
-    private SharedPreferences preferences;
-
     // inflater
     LayoutInflater inflater;
 
@@ -128,8 +126,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     private ImageView waiting_for_result;
 
     // HorizontalScrollView для загрузки элементов
-    private HorizontalScrollView items_hsv;
-//            main_tools_panel_hsv;
+    private HorizontalScrollView items_hsv,
+            main_tools_panel_hsv;
     private ScrollView pins_sv;
     private LinearLayout pins_ll,
             main_ll,
@@ -157,8 +155,10 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initOnCreate();
-        
+
         getIntentFromMain();
+
+        setThemePropertiesToNote();
 
         setCursorOnEndOfEditText();
     }
@@ -221,10 +221,41 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     }
 
-    @Override
-    protected void onResume() {
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        super.onResume();
+    /**********************************************************************************
+     * настройки вида при разных темах */
+    private void setThemePropertiesToNote() {
+        boolean is_darcula_active = PublicResources.preferences
+                .getBoolean(PublicResources.THEME_KEY, false);
+        if (is_darcula_active) {
+            if (bg_color == PublicResources.DEFAULT_BG_COLOR_VALUE) {
+                main_ll.setBackgroundColor(res.getColor(R.color.black, null));
+            }
+            note_name.setTextColor(res.getColor(R.color.mono_light_grey, null));
+            note_main_text.setTextColor(res.getColor(R.color.mono_light_grey, null));
+            pin_btn.setColorFilter(res.getColor(R.color.mono_medium_grey, null));
+
+            // панели
+            items_hsv.setBackgroundColor(res.getColor(R.color.blue_middle_grey, null));
+            main_tools_panel_hsv
+                    .setBackgroundColor(res.getColor(R.color.mono_middle_grey, null));
+
+            pins_ll.setBackgroundColor(res.getColor(R.color.mono_middle_grey, null));
+            int temp_pins_color = res.getColor(R.color.black, null);
+            for (int i = 0; i < pins_ll.getChildCount(); ++i) {
+                setColorFiltersOnPins((LinearLayout) pins_ll.getChildAt(i), temp_pins_color);
+            }
+        }
+        else {
+            if (bg_color == PublicResources.DEFAULT_BG_COLOR_VALUE) {
+                main_ll.setBackgroundColor(res.getColor(R.color.white, null));
+            }
+        }
+    }
+
+    private void setColorFiltersOnPins(LinearLayout parent_ll, int color_for_pins) {
+        for (int i = 0; i < parent_ll.getChildCount(); ++i) {
+            ((ImageView) parent_ll.getChildAt(i)).setColorFilter(color_for_pins);
+        }
     }
 
     /**********************************************************************************
@@ -244,14 +275,14 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         default_text_color = res.getColor(R.color.black, null);
         current_text_bg_color = res.getColor(R.color.transparent_, null);
         current_text_color = default_text_color;
-        bg_color = res.getColor(R.color.white, null);
+        bg_color = PublicResources.DEFAULT_BG_COLOR_VALUE;
 
         // инициализация inflater
         inflater = getLayoutInflater();
 
         // инициализация панелек
         items_hsv = findViewById(R.id.items_hsv);
-//        main_tools_panel_hsv = findViewById(R.id.main_tools_panel_hsv);
+        main_tools_panel_hsv = findViewById(R.id.main_tools_panel_hsv);
         pins_sv = findViewById(R.id.pins_sv);
         pins_ll = findViewById(R.id.pins_ll);
         main_ll = findViewById(R.id.main_ll);
@@ -287,6 +318,16 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
         note_name = findViewById(R.id.note_name);
         note_main_text = findViewById(R.id.note_main_text);
+        View.OnClickListener note_text_cl = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (pins_sv.getVisibility() == View.VISIBLE) {
+                    pins_sv.setVisibility(View.GONE);
+                }
+            }
+        };
+        note_name.setOnClickListener(note_text_cl);
+        note_main_text.setOnClickListener(note_text_cl);
 
         TempResources.setTempPinIcon(pin_btn.getDrawable());
 
@@ -385,6 +426,9 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         // код обработки кликов
         if (pins_sv.getVisibility() == View.VISIBLE) {
             clearPinsPanel();
+            if (view.getId() == R.id.pin_btn) {
+                return;
+            }
         }
         start_selection = note_main_text.getSelectionStart();
         end_selection = note_main_text.getSelectionEnd();
@@ -801,6 +845,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                             break;
                         }
                     }
+                    is_drawings_empty = drawings.isEmpty();
                     Toast.makeText(Note.this,
                             "Удалили, пиу-пиу!", Toast.LENGTH_SHORT).show();
                     return true;
@@ -890,6 +935,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         super.onDestroy();
         colors = null;
         pin_ids = null;
+        note_name.setOnClickListener(null);
+        note_main_text.setOnClickListener(null);
         for (int i = 0; i < this_note_place_ll.getChildCount(); ++i) {
             this_note_place_ll.getChildAt(i).setOnClickListener(null);
         }

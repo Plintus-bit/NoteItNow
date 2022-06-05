@@ -3,6 +3,7 @@ package com.example.noteitnow.statics_entity.items;
 import android.content.res.Resources;
 
 import com.example.noteitnow.R;
+import com.example.noteitnow.statics_entity.Doings;
 
 public class ColorItems extends Items {
 
@@ -116,4 +117,35 @@ public class ColorItems extends Items {
                 res.getColor(R.color.blue_light_grey, null),
                 res.getColor(R.color.blue_total_white, null)};
     }
+
+    public int[] getColors(Doings what) {
+        switch (what) {
+            case PINNED:
+                return new int[] {
+                        res.getColor(R.color.pinned_green),
+                        res.getColor(R.color.pinned_blue),
+                        res.getColor(R.color.pinned_orange),
+                        res.getColor(R.color.pinned_pink),
+                        res.getColor(R.color.pinned_purple),
+                        res.getColor(R.color.pinned_red),
+                        res.getColor(R.color.pinned_sky)
+                };
+            case PASTEL_SOFT_PINNED:
+                return new int[] {
+                        res.getColor(R.color.soft_cian),
+                        res.getColor(R.color.pastel_lavender),
+                        res.getColor(R.color.soft_grass),
+                        res.getColor(R.color.pastel_lilac),
+                        res.getColor(R.color.soft_orange),
+                        res.getColor(R.color.pastel_orange),
+                        res.getColor(R.color.soft_peach),
+                        res.getColor(R.color.soft_pink),
+                        res.getColor(R.color.pastel_pink_lilac)
+                };
+            default:
+                return null;
+        }
+    }
+
+
 }

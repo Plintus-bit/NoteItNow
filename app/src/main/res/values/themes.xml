@@ -18,6 +18,7 @@
         <item name="floatingActionButtonStyle">@style/FloatingActBtnStyle</item>
 
         <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
 
     <!-- Верхняя панель -->

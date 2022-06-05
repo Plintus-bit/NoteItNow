@@ -48,6 +48,20 @@
     <color name="pastel_pink_lilac">#FFC9F0</color>
     <color name="pastel_orange">#FFD6BE</color>
 
-    <color name="soft_light_blue">#D6EFFD</color>
+    <color name="pastel_marker_blue">#D6EFFD</color>
+
+    <color name="programming_lime">#F5FF99</color>
+    <color name="programming_green">#b2ea39</color>
+    <color name="programming_purple">#d353f2</color>
+    <color name="programming_blue">#6054ef</color>
+
+    <color name="pinned_red">#FF4D17</color>
+    <color name="pinned_orange">#FF8C00</color>
+    <color name="pinned_green">#B2FF59</color>
+    <color name="pinned_sky">#40C4FF</color>
+    <color name="pinned_purple">#974DFF</color>
+    <color name="pinned_pink">#FF4081</color>
+    <color name="pinned_blue">#536DFE</color>
+
 
 </resources>

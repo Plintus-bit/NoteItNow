@@ -21,6 +21,8 @@ public class NoteStructure implements Serializable {
     private String file_name;
     // фон заметки
     private int bg;
+    // паттерн заметки
+    private int bg_pattern;
     // пин иконка
     private int pin;
     // закреплена ли заметка
@@ -39,6 +41,7 @@ public class NoteStructure implements Serializable {
         text = "";
         file_name = "";
         bg = R.color.white;
+        bg_pattern = PublicResources.CANCEL_ID;
         pin = R.drawable.ic_clip_icon;
         is_pinned = false;
         drawings = null;
@@ -51,6 +54,7 @@ public class NoteStructure implements Serializable {
         text = "";
         file_name = "";
         bg = R.color.white;
+        bg_pattern = PublicResources.CANCEL_ID;
         pin = R.drawable.ic_clip_icon;
         is_pinned = false;
         drawings = null;
@@ -63,6 +67,7 @@ public class NoteStructure implements Serializable {
         text = note_text;
         file_name = "";
         bg = R.color.white;
+        bg_pattern = PublicResources.CANCEL_ID;
         pin = R.drawable.ic_clip_icon;
         is_pinned = false;
         drawings = null;
@@ -108,6 +113,10 @@ public class NoteStructure implements Serializable {
         this.date = date;
     }
 
+    public void setBgPattern(int bg_pattern) {
+        this.bg_pattern = bg_pattern;
+    }
+
     /**********************************************************************************
      * Getter'ы */
     public String getName() {
@@ -144,6 +153,10 @@ public class NoteStructure implements Serializable {
 
     public ArrayList<Integer> getDate() {
         return date;
+    }
+
+    public int getBgPattern() {
+        return bg_pattern;
     }
 
     /**********************************************************************************

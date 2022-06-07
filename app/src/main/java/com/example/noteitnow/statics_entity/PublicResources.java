@@ -1,6 +1,8 @@
 package com.example.noteitnow.statics_entity;
 
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
@@ -8,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -30,6 +33,18 @@ public class PublicResources {
     // Ключи для настроек
     public static String THEME_KEY = "darcula_theme";
 
+    // для получения разрешений
+    public static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    };
+
+    // статусы разрешений
+    public static boolean has_external_permission;
+
+    // ресурсы
+    public static Resources res;
+
     // Единица измерения
     public static int device_width;
     public static int device_height;
@@ -39,10 +54,12 @@ public class PublicResources {
     public static final int SYSTEM_PANEL_HEIGHT = 50;
 
     // Запросы на какие действия рассматриваем
+    public static final int REQUEST_EXTERNAL_STORAGE = 111;
     public static final int REQUEST_NOTE_EMPTY = 1;
     public static final int REQUEST_NEW_CANVAS = 2;
     public static final int REQUEST_EDIT_CANVAS = 3;
     public static final int REQUEST_NOTE_EDIT = 4;
+    public static final int REQUEST_PICK_IMAGE = 5;
 
     // EXTRAS для передачи данных
     public static final String EXTRA_NOTE = "NOTE";
@@ -97,6 +114,9 @@ public class PublicResources {
 
     // настройки
     public static SharedPreferences preferences;
+
+    // IDs
+    public static final int CANCEL_ID = 119;
 
     /**********************************************************************************
      * создание цветового элемента */
@@ -155,6 +175,16 @@ public class PublicResources {
         btn.setImageDrawable(item);
         btn.setId(item_id);
         parent.addView(btn);
+    }
+
+    public static void createCancelItem(LayoutInflater inflater, int child_layout,
+                                        LinearLayout parent, View.OnClickListener cl) {
+        ImageButton btn = (ImageButton) inflater
+                .inflate(child_layout, parent, false);
+        btn.setImageDrawable(res.getDrawable(R.drawable.ic_cancel_icon, null));
+        btn.setId(PublicResources.CANCEL_ID);
+        btn.setOnClickListener(cl);
+        parent.addView(btn, 0);
     }
 
     /**********************************************************************************

@@ -1,5 +1,9 @@
 package com.example.noteitnow.notes_entities;
 
+import android.text.SpannableStringBuilder;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -19,6 +23,11 @@ public class TextSpansEditor {
     private final static int AFTER_INSIDE = 3;
     private final static int ALL = 4;
     private final static int ALL_INSIDE = 5;
+    private final static int START_INSIDE = 6;
+    private final static int END_INSIDE = 7;
+
+    // текущее количество span'ов
+    private int spans_size;
 
     // массив span'ов
     private ArrayList<TextSpans> spans;
@@ -34,10 +43,12 @@ public class TextSpansEditor {
     public TextSpansEditor() {
         spans = new ArrayList<TextSpans>();
         edit_indexes = new ArrayList<EditIndexes>();
+        spans_size = spans.size();
     }
 
     public TextSpansEditor(ArrayList<TextSpans> spans) {
         this.spans = spans;
+        spans_size = this.spans.size();
         edit_indexes = new ArrayList<EditIndexes>();
     }
 
@@ -57,27 +68,87 @@ public class TextSpansEditor {
      * Методы */
     public void addSpan(TextSpans span) {
         spans.add(span);
+        this.spans_size = this.spans.size();
     }
 
     // Если новый span что-то перекрывает, удалить старый
-    public void removeUselessTextSpans(TextSpans new_span) {
+    public SpannableStringBuilder removeUselessTextSpans(TextSpans new_span, String text) {
         ArrayList<Integer> index_for_delete = new ArrayList<Integer>();
+        String temp_text = null;
+        boolean is_need_to_add_span = true;
+        EditIndexes new_span_index = new EditIndexes(new_span.getStart(), new_span.getEnd());
         for (int i = 0; i < spans.size(); ++i) {
+            EditIndexes old_span_index =
+                    new EditIndexes(spans.get(i).getStart(),spans.get(i).getEnd());
+            int state = UNKNOWN_STATE;
             if (!isDataTypeEquals(new_span, spans.get(i))) {
                 // тут происходит особая обработка разнотипов
-                continue;
+                switch (new_span.getSpanType()) {
+                    case NORMAL:
+                        is_need_to_add_span = false;
+                        switch (spans.get(i).getSpanType()) {
+                            case BOLD:
+                            case ITALIC:
+                                state = getSpecialState(new_span_index, old_span_index);
+                                if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
+                                    temp_text = text;
+                                }
+                                if (spans_size > spans.size()) {
+                                    --i;
+                                }
+                                continue;
+                            default:
+                                continue;
+                        }
+                    case CLEAR:
+                        is_need_to_add_span = false;
+                        state = getSpecialState(new_span_index, old_span_index);
+                        if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
+                            temp_text = text;
+                        }
+                        if (spans_size > spans.size()) {
+                            --i;
+                        }
+                        continue;
+                    default:
+                        continue;
+                }
             }
             // перебор возможных вариантов
-            switch (new_span.getSpanType()) {
-                case TEXT_BG:
-                case COLOR:
-                    if (new_span.getStart() <= spans.get(i).getStart()
-                            && new_span.getEnd() >= spans.get(i).getEnd()) {
-                        index_for_delete.add(i);
+            if (isDataEquals(new_span, spans.get(i))) {
+                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> DATA EQUALS");
+                // при одинаковых данных бывает удаление
+                state = getSpecialState(new_span_index, old_span_index);
+//                Log.d(PublicResources.DEBUG_LOG_TAG, "STATE ! >>> " + String.valueOf(state));
+                if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
+//                    Log.d(PublicResources.DEBUG_LOG_TAG, ">>> NEED TO REDRAW");
+                    is_need_to_add_span = false;
+                    temp_text = text;
+                    if (spans_size > spans.size()) {
+                        --i;
                     }
-                    break;
-                default:
-                    // nothing
+                }
+            }
+            else {
+                // при разных данных всегда вставка
+                switch (new_span.getSpanType()) {
+                    case TEXT_BG:
+                    case COLOR:
+                        state = getSpecialState(new_span_index, old_span_index);
+//                        Log.d(PublicResources.DEBUG_LOG_TAG, "STATE >>> " + state);
+                        switch (state) {
+                            case ALL:
+                            case ALL_INSIDE:
+                                index_for_delete.add(i);
+                                temp_text = text;
+                                continue;
+                            default:
+                                // nothing
+                        }
+                        continue;
+                    default:
+                        // nothing
+                }
             }
         }
 //        Log.d(PublicResources.DEBUG_LOG_TAG , "before delete: " + spans.size());
@@ -87,7 +158,16 @@ public class TextSpansEditor {
             }
         }
         index_for_delete = null;
-        spans.add(new_span);
+        if (is_need_to_add_span) {
+//            Log.d(PublicResources.DEBUG_LOG_TAG, ">>> SPAN ADDED");
+            spans.add(new_span);
+        }
+        if (temp_text != null) {
+            Log.d(PublicResources.DEBUG_LOG_TAG, "REDRAWING >>>");
+            return getSpannedString(temp_text);
+        }
+        spans_size = spans.size();
+        return null;
     }
 
     private boolean isDataTypeEquals(TextSpans value_1, TextSpans value_2) {
@@ -165,6 +245,88 @@ public class TextSpansEditor {
         }
     }
 
+    // правка определённого span'а
+    private boolean fixSpecialSpan(EditIndexes edit_index, int span_index, int state, Doings type) {
+        TextSpans old_span = spans.get(span_index);
+        boolean is_need_to_redraw = true;
+        if (type == Doings.NORMAL || type == Doings.CLEAR) {
+            switch (state) {
+                case ALL_INSIDE:
+                case ALL:
+                    spans.remove(span_index);
+                    break;
+                case AFTER_INSIDE:
+                case END_INSIDE:
+                    old_span.setEnd(edit_index.getStart());
+                    spans.set(span_index, old_span);
+                    break;
+                case BEFORE_INSIDE:
+                case START_INSIDE:
+                    old_span.setStart(edit_index.getEnd());
+                    spans.set(span_index, old_span);
+                    break;
+                case INSIDE:
+                    TextSpans first_span = new TextSpans(
+                            old_span.getStart(), edit_index.getStart(),
+                            old_span.getSpanType(), old_span.getData(), old_span.getFlag()
+                    );
+                    TextSpans second_span = new TextSpans(
+                            edit_index.getEnd(), old_span.getEnd(),
+                            old_span.getSpanType(), old_span.getData(), old_span.getFlag()
+                    );
+                    spans.remove(span_index);
+                    spans.add(span_index, second_span);
+                    spans.add(span_index, first_span);
+                    break;
+                default:
+                    is_need_to_redraw = false;
+            }
+            return is_need_to_redraw;
+        }
+        switch (state) {
+            case ALL_INSIDE:
+                spans.remove(span_index);
+                break;
+            case AFTER_INSIDE:
+                old_span.setEnd(edit_index.getEnd());
+                spans.set(span_index, old_span);
+                break;
+            case BEFORE_INSIDE:
+                old_span.setStart(edit_index.getStart());
+                spans.set(span_index, old_span);
+                break;
+            case INSIDE:
+                TextSpans first_span = new TextSpans(
+                        old_span.getStart(), edit_index.getStart(),
+                        old_span.getSpanType(), old_span.getData(), old_span.getFlag()
+                );
+                TextSpans second_span = new TextSpans(
+                        edit_index.getEnd(), old_span.getEnd(),
+                        old_span.getSpanType(), old_span.getData(), old_span.getFlag()
+                );
+                spans.remove(span_index);
+                spans.add(span_index, second_span);
+                spans.add(span_index, first_span);
+                break;
+            case START_INSIDE:
+                old_span.setStart(edit_index.getEnd());
+                spans.set(span_index, old_span);
+                break;
+            case END_INSIDE:
+                old_span.setEnd(edit_index.getStart());
+                spans.set(span_index, old_span);
+                break;
+            case ALL:
+                old_span.setStart(edit_index.getStart());
+                old_span.setEnd(edit_index.getEnd());
+                spans.set(span_index, old_span);
+                break;
+            default:
+                is_need_to_redraw = false;
+        }
+        return is_need_to_redraw;
+    }
+
     private void fixSpanInsertion(int state, int span_index, EditIndexes new_index) {
         TextSpans temp_span = spans.get(span_index);
         switch (state) {
@@ -240,7 +402,7 @@ public class TextSpansEditor {
                     && new_edit_indexes.getStart() == old_edit_indexes.getStart()) {
                 return ALL_INSIDE;
             }
-            else if (new_edit_indexes.getEnd() > old_edit_indexes.getEnd()) {
+            else if (new_edit_indexes.getEnd() >= old_edit_indexes.getEnd()) {
                 return ALL;
             }
             else if (new_edit_indexes.getStart() < old_edit_indexes.getStart()) {
@@ -256,8 +418,87 @@ public class TextSpansEditor {
         return INSIDE;
     }
 
+    // состояния при одинаковых данных
+    private int getSpecialState(EditIndexes new_edit_indexes, EditIndexes old_edit_indexes) {
+        if (new_edit_indexes.getEnd() < old_edit_indexes.getStart()) {
+            return BEFORE;
+        }
+        if (new_edit_indexes.getStart() > old_edit_indexes.getEnd()) {
+            return AFTER;
+        }
+        if (new_edit_indexes.getStart() < old_edit_indexes.getStart()) {
+            if (new_edit_indexes.getEnd() >= old_edit_indexes.getEnd()) {
+                return ALL;
+            }
+            else {
+                return BEFORE_INSIDE;
+            }
+        }
+        else if (new_edit_indexes.getStart() == old_edit_indexes.getStart()) {
+            if (new_edit_indexes.getEnd() > old_edit_indexes.getEnd()) {
+                return ALL;
+            }
+            else if (new_edit_indexes.getEnd() == old_edit_indexes.getEnd()) {
+                return ALL_INSIDE;
+            }
+            else {
+                return START_INSIDE;
+            }
+        }
+        else {
+            if (new_edit_indexes.getEnd() < old_edit_indexes.getEnd()) {
+                return INSIDE;
+            }
+            if (new_edit_indexes.getEnd() == old_edit_indexes.getEnd()) {
+                return END_INSIDE;
+            }
+            else {
+                return AFTER_INSIDE;
+            }
+        }
+    }
+
     public void makeCleaning() {
         fixTextSpans();
         edit_indexes.clear();
+    }
+
+    /**********************************************************************************
+     * Перерисовка span'ов */
+    public SpannableStringBuilder getSpannedString(String source_text) {
+        SpannableStringBuilder spanned_text = new SpannableStringBuilder(source_text);
+        for (int i = 0; i < spans.size(); ++i) {
+            getTextWithNewSpan(spanned_text, spans.get(i));
+        }
+        return spanned_text;
+    }
+
+    public static SpannableStringBuilder getTextWithNewSpan(
+            SpannableStringBuilder text, TextSpans span) {
+        switch (span.getSpanType()) {
+            case COLOR:
+                text.setSpan(
+                        new ForegroundColorSpan(span.getData()),
+                        span.getStart(), span.getEnd(),
+                        span.getFlag());
+                break;
+            case TEXT_BG:
+                text.setSpan(
+                        new BackgroundColorSpan(span.getData()),
+                        span.getStart(), span.getEnd(),
+                        span.getFlag());
+                break;
+            case BOLD:
+            case NORMAL:
+            case ITALIC:
+                text.setSpan(
+                        new StyleSpan(span.getData()),
+                        span.getStart(), span.getEnd(),
+                        span.getFlag());
+                break;
+            default:
+                //nothing
+        }
+        return text;
     }
 }

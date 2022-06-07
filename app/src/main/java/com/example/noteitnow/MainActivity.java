@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         PublicResources.IMAGES_DIR = new File(getFilesDir(), PublicResources.FILES_DIRECTORY[0]);
         PublicResources.IMAGES_DIR.mkdir();
 
+        PublicResources.res = getResources();
         initOnCreate();
 
         // получаем файлы

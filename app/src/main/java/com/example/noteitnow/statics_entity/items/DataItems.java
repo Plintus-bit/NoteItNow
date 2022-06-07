@@ -75,6 +75,31 @@ public class DataItems extends Items {
         };
     }
 
+    protected ArrayList<Drawable> getBgPatternDrawable() {
+        ArrayList<Drawable> draw_list = new ArrayList<Drawable>();
+        draw_list.add(res.getDrawable(R.drawable.bg_grid_large, null));
+        draw_list.add(res.getDrawable(R.drawable.bg_grid_medium, null));
+        draw_list.add(res.getDrawable(R.drawable.bg_line_large, null));
+        draw_list.add(res.getDrawable(R.drawable.bg_line_medium, null));
+        return draw_list;
+    }
+
+    protected ArrayList<Drawable> getBgPatternIcons() {
+        ArrayList<Drawable> draw_list = new ArrayList<Drawable>();
+        draw_list.add(res.getDrawable(R.drawable.ic_bg_grid_large_icon, null));
+        draw_list.add(res.getDrawable(R.drawable.ic_bg_grid_medium_icon, null));
+        draw_list.add(res.getDrawable(R.drawable.ic_bg_line_large_icon, null));
+        draw_list.add(res.getDrawable(R.drawable.ic_bg_line_medium_icon, null));
+        return draw_list;
+    }
+
+    public ArrayList<ArrayList<Drawable>> getBgPatterns() {
+        ArrayList<ArrayList<Drawable>> draw_list = new ArrayList<>();
+        draw_list.add(getBgPatternDrawable());
+        draw_list.add(getBgPatternIcons());
+        return draw_list;
+    }
+
     public ArrayList<Drawable> getBrushDrawable() {
         ArrayList<Drawable> draw_list = new ArrayList<Drawable>();
         draw_list.add(res.getDrawable(R.drawable.ic_4px, null));

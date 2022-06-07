@@ -4,13 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -53,7 +58,9 @@ import com.example.noteitnow.statics_entity.items.DataItems;
 import com.google.android.material.shape.MarkerEdgeTreatment;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
@@ -68,9 +75,12 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     // статичные массивы
     public int[] pin_ids;
     public int[] colors;
+    ArrayList<ArrayList<Drawable>> bg_patterns_data;
 
     ColorItems color_items;
     DataItems data_items;
+
+    Toast current_toast = null;
 
     // текущий цвет bg
     private int bg_color;
@@ -97,6 +107,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     private int current_text_color;
     private int current_text_bg_color;
     private int default_text_color;
+    private int current_pattern_id;
 
     // вложенный класс для хранения элементов
     private class ExistView {
@@ -182,6 +193,11 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         break;
                     }
                 }
+                if (exist_note.getBgPattern() != PublicResources.CANCEL_ID) {
+                    this_note_place_ll
+                            .setBackground(bg_patterns_data.get(0).get(exist_note.getBgPattern()));
+                }
+                current_pattern_id = exist_note.getBgPattern();
                 is_pinned = exist_note.getPinned();
                 pin_btn.setImageDrawable(res.getDrawable(exist_note.getPin(), null));
                 bg_color = exist_note.getBg();
@@ -270,6 +286,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         // сбор ресурсов
         pin_ids = getPinIds();
         colors = fillColors();
+        bg_patterns_data = data_items.getBgPatterns();
+        current_pattern_id = PublicResources.CANCEL_ID;
 
         // получение цветов
         default_text_color = res.getColor(R.color.black, null);
@@ -303,6 +321,9 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.bold_btn)));
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.italic_btn)));
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.normal_btn)));
+        panel_views.add(new ExistView((ImageButton) findViewById(R.id.add_image_btn)));
+        panel_views.add(new ExistView((ImageButton) findViewById(R.id.bg_pattern_change_btn)));
+        panel_views.add(new ExistView((ImageButton) findViewById(R.id.clear_styles_btn)));
 
         // рисунков нет
         is_drawings_empty = true;
@@ -395,9 +416,13 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                     startActivity(intent);   
                 }
                 else {
-                    Toast.makeText(this,
+                    if (current_toast != null) {
+                        current_toast.cancel();
+                    }
+                    current_toast = Toast.makeText(this,
                             R.string.activities_not_found,
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT);
+                    current_toast.show();
                 }
                 break;
             default:
@@ -474,8 +499,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         Doings.BOLD,
                         Typeface.BOLD, Spannable.SPAN_USER);
                 spans_editor.makeCleaning();
-                spans_editor.addSpan(span);
                 setSpansOnText(span);
+                setNewSpannedText(span);
                 break;
             case R.id.italic_btn:
                 span = new TextSpans(
@@ -483,8 +508,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         Doings.ITALIC,
                         Typeface.ITALIC, Spannable.SPAN_USER);
                 spans_editor.makeCleaning();
-                spans_editor.addSpan(span);
                 setSpansOnText(span);
+                setNewSpannedText(span);
                 break;
             case R.id.normal_btn:
                 span = new TextSpans(
@@ -492,8 +517,34 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         Doings.NORMAL,
                         Typeface.NORMAL, Spannable.SPAN_USER);
                 spans_editor.makeCleaning();
-                spans_editor.addSpan(span);
-                setSpansOnText(span);
+                setNewSpannedText(span);
+                break;
+            case R.id.add_image_btn:
+                if (current_toast != null) {
+                    current_toast.cancel();
+                }
+                current_toast = Toast.makeText(Note.this,
+                        "Функция находится в разработке :)",
+                        Toast.LENGTH_SHORT);
+                current_toast.show();
+//                verifyStoragePermissions(Note.this);
+//                if (!PublicResources.has_external_permission) {
+//                    return;
+//                }
+//                Intent pick_image_intent = new Intent(Intent.ACTION_PICK);
+//                pick_image_intent.setType("image/*");
+//                startActivityForResult(pick_image_intent, PublicResources.REQUEST_PICK_IMAGE);
+                break;
+            case R.id.bg_pattern_change_btn:
+                setItemsChooserForPanelElement(panel_views.get(9).getItem());
+                break;
+            case R.id.clear_styles_btn:
+                span = new TextSpans(
+                        note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
+                        Doings.CLEAR,
+                        PublicResources.CANCEL_ID, Spannable.SPAN_USER);
+                spans_editor.makeCleaning();
+                setNewSpannedText(span);
                 break;
             default:
                 // nothing
@@ -511,34 +562,9 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     /**********************************************************************************
      * Spannable */
     public void setSpansOnText(TextSpans span) {
-//        Log.d(PublicResources.DEBUG_LOG_TAG, "start: " + start_selection
-//                + "; end: " + end_selection + ";");
         SpannableStringBuilder span_text = new SpannableStringBuilder(
                 note_main_text.getText());
-        switch (span.getSpanType()) {
-            case COLOR:
-                span_text.setSpan(
-                        new ForegroundColorSpan(span.getData()),
-                        span.getStart(), span.getEnd(),
-                        span.getFlag());
-                break;
-            case TEXT_BG:
-                span_text.setSpan(
-                        new BackgroundColorSpan(span.getData()),
-                        span.getStart(), span.getEnd(),
-                        span.getFlag());
-                break;
-            case BOLD:
-            case NORMAL:
-            case ITALIC:
-                span_text.setSpan(
-                        new StyleSpan(span.getData()),
-                        span.getStart(), span.getEnd(),
-                        span.getFlag());
-                break;
-            default:
-                //nothing
-        }
+        TextSpansEditor.getTextWithNewSpan(span_text, span);
         note_main_text.setText(span_text);
         setCursorOnEndOfEditText();
     }
@@ -556,6 +582,61 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         View.OnClickListener color_cl = getColorCL(existView, color_of_what);
         for (int i = 0; i < ll.getChildCount(); ++i) {
             (ll.getChildAt(i)).setOnClickListener(color_cl);
+        }
+        if (color_of_what == Doings.BACKGROUND) {
+            PublicResources.createCancelItem(
+                    inflater, R.layout.popup_menu_default_item_layout,
+                    ll, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            setDefaultBgColorForNote();
+                            clearPanelItems();
+                        }
+                    });
+        }
+    }
+
+    private void setItemsChooserForPanelElement(ImageButton panel_element) {
+        if (items_hsv.getVisibility() == View.VISIBLE) {
+            clearPanelItems();
+        }
+        items_hsv.setVisibility(View.VISIBLE);
+        LinearLayout ll = PublicResources
+                .getLLPanelWithItems(inflater, R.layout.popup_menu_layout,
+                        new int[] {0, 1, 2, 3}, bg_patterns_data.get(1));
+        items_hsv.addView(ll);
+        View.OnClickListener cl = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view.getId() != PublicResources.CANCEL_ID) {
+                    this_note_place_ll.setBackground(bg_patterns_data.get(0).get(view.getId()));
+                }
+                else {
+                    this_note_place_ll
+                            .setBackground(res.getDrawable(R.drawable.icons_bg, null));
+                }
+                current_pattern_id = view.getId();
+                clearPanelItems();
+            }
+        };
+        for (int i = 0; i < ll.getChildCount(); ++i) {
+            (ll.getChildAt(i)).setOnClickListener(cl);
+        }
+        PublicResources.createCancelItem(
+                inflater, R.layout.popup_menu_default_item_layout, ll, cl);
+    }
+
+    private void setDefaultBgColorForNote() {
+        bg_color = PublicResources.DEFAULT_BG_COLOR_VALUE;
+        boolean is_darcula_active = PublicResources.preferences
+                .getBoolean(PublicResources.THEME_KEY, false);
+        if (is_darcula_active) {
+            main_ll.setBackgroundColor(res.getColor(R.color.black, null));
+            panel_views.get(1).getItem().setColorFilter(res.getColor(R.color.black, null));
+        }
+        else {
+            main_ll.setBackgroundColor(res.getColor(R.color.white, null));
+            panel_views.get(1).getItem().setColorFilter(res.getColor(R.color.white, null));
         }
     }
 
@@ -588,7 +669,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         setSpansOnText(span);
                         // добавление и очистка
                         spans_editor.makeCleaning();
-                        spans_editor.removeUselessTextSpans(span);
+                        setNewSpannedText(span);
                     }
                 };
                 break;
@@ -605,7 +686,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         setSpansOnText(span);
                         // добавление и очистка
                         spans_editor.makeCleaning();
-                        spans_editor.removeUselessTextSpans(span);
+                        setNewSpannedText(span);
                     }
                 };
                 break;
@@ -619,6 +700,15 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 };
         }
         return cl;
+    }
+
+    private void setNewSpannedText(TextSpans span) {
+        SpannableStringBuilder new_text_data = spans_editor
+                .removeUselessTextSpans(span,
+                        note_main_text.getText().toString());
+        if (new_text_data != null) {
+            note_main_text.setText(new_text_data);
+        }
     }
 
     @Override
@@ -750,6 +840,42 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         save_drawing.start();
                     }
                     break;
+                case PublicResources.REQUEST_PICK_IMAGE:
+                    if (intent != null) {
+                        Uri image_uri = intent.getData();
+                        InputStream image_is = null;
+                        Bitmap image_bmp = null;
+                        try {
+                            image_is = getContentResolver().openInputStream(image_uri);
+                            image_bmp = BitmapFactory.decodeStream(image_is);
+                            if (image_bmp != null) {
+                                file_name = getNewFileName(Doings.PNG);
+                                // добавить изображение в заметку
+                                addImageDrawingToNote(R.layout.drawing_layout,
+                                        file_name,
+                                        image_bmp, res.getColor(R.color.transparent_));
+
+                                // добавление в массив
+                                File file_1 = PublicResources.createFile(file_name, Doings.PNG);
+                                DrawingStructure catched_drawing = new DrawingStructure();
+                                catched_drawing.setDrawingBg(bg_color);
+                                catched_drawing.setDrawingFileName(file_name);
+                                drawings.add(catched_drawing);
+                                // добавление изображения в файл
+                                Bitmap final_image_bmp = image_bmp;
+                                Thread save_drawing = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        saveOrReplaceDrawing(file_1, final_image_bmp);
+                                        Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Get it!");
+                                    }
+                                });
+                                save_drawing.start();
+                            }
+                        } catch (Exception e) {
+                            Log.d(PublicResources.DEBUG_LOG_TAG, e.getMessage());
+                        }
+                    }
                 default:
                     // nothing
             }
@@ -911,6 +1037,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
             new_note.setBg(bg_color);
             new_note.setDrawings(drawings);
             new_note.setIsPinned(is_pinned);
+            new_note.setBgPattern(current_pattern_id);
             Date date = new Date();
             SimpleDateFormat date_format = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
             new_note.setDate(PublicResources.getCollectedDate(date_format.format(date)));
@@ -940,5 +1067,45 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         for (int i = 0; i < this_note_place_ll.getChildCount(); ++i) {
             this_note_place_ll.getChildAt(i).setOnClickListener(null);
         }
+    }
+
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PublicResources.PERMISSIONS_STORAGE,
+                    PublicResources.REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PublicResources.REQUEST_EXTERNAL_STORAGE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    PublicResources.has_external_permission = true;
+                }
+                else {
+                    PublicResources.has_external_permission = false;
+                }
+                return;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        if (current_toast != null) {
+            current_toast.cancel();
+        }
+        current_toast = null;
+        super.onStop();
     }
 }

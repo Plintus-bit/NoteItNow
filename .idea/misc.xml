@@ -7,6 +7,8 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/active_search_bar.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/bg_grid_large.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/bg_grid_medium.xml" value="0.302" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/bg_line_large.xml" value="0.302" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/bg_line_medium.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/card_note_name_bg.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/floating_btn_bg.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_add_btn.xml" value="0.3225" />
@@ -58,6 +60,7 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_draw.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_edit_icon.xml" value="0.3225" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_eraser.xml" value="0.3225" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_galery.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_garbage_cart_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_gem_icon.xml" value="0.132" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/ic_gift_icon.xml" value="0.132" />

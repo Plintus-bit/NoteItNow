@@ -23,5 +23,6 @@ public enum Doings {
     POINT,
     PATH,
     PINNED,
-    PASTEL_SOFT_PINNED
+    PASTEL_SOFT_PINNED,
+    CLEAR
 }

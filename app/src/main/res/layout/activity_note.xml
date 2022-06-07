@@ -59,6 +59,11 @@
                     app:srcCompat="@drawable/ic_normal" />
 
                 <ImageButton
+                    android:id="@+id/clear_styles_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_cancel_icon" />
+
+                <ImageButton
                     android:id="@+id/marker_list_btn"
                     style="@style/PanelIcon"
                     app:srcCompat="@drawable/ic_marker_text" />
@@ -68,6 +73,15 @@
                     style="@style/PanelIcon"
                     app:srcCompat="@drawable/ic_bg_change_icon"
                     android:background="@drawable/ic_bg_change_bg_icon" />
+                <ImageButton
+                    android:id="@+id/bg_pattern_change_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_bg_pattern_change_bg_icon" />
+
+                <ImageButton
+                    android:id="@+id/add_image_btn"
+                    style="@style/PanelIcon"
+                    app:srcCompat="@drawable/ic_galery" />
 
                 <ImageButton
                     android:id="@+id/add_drawing_btn"

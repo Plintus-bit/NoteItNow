@@ -24,6 +24,16 @@ public class ColorItems extends Items {
                 res.getColor(R.color.soft_peach, null),
                 res.getColor(R.color.soft_pink, null),
 
+                res.getColor(R.color.pastel_marker_yellow, null),
+                res.getColor(R.color.pastel_marker_orange, null),
+                res.getColor(R.color.pastel_marker_magenta, null),
+                res.getColor(R.color.pastel_marker_pink, null),
+                res.getColor(R.color.pastel_marker_purple, null),
+                res.getColor(R.color.pastel_marker_blue, null),
+                res.getColor(R.color.pastel_marker_green, null),
+                res.getColor(R.color.pastel_marker_lime, null),
+
+
                 res.getColor(R.color.dark_grass, null),
                 res.getColor(R.color.dark_grey_blue, null),
                 res.getColor(R.color.dark_night_sky, null),
@@ -32,6 +42,11 @@ public class ColorItems extends Items {
                 res.getColor(R.color.dark_sea_wave, null),
                 res.getColor(R.color.dark_sky, null),
                 res.getColor(R.color.dark_tomato, null),
+
+                res.getColor(R.color.programming_blue, null),
+                res.getColor(R.color.programming_green, null),
+                res.getColor(R.color.programming_lime, null),
+                res.getColor(R.color.programming_purple, null),
 
                 res.getColor(R.color.pastel_lavender, null),
                 res.getColor(R.color.pastel_lilac, null),
@@ -77,6 +92,15 @@ public class ColorItems extends Items {
                 res.getColor(R.color.soft_peach, null),
                 res.getColor(R.color.soft_pink, null),
 
+                res.getColor(R.color.pastel_marker_yellow, null),
+                res.getColor(R.color.pastel_marker_orange, null),
+                res.getColor(R.color.pastel_marker_magenta, null),
+                res.getColor(R.color.pastel_marker_pink, null),
+                res.getColor(R.color.pastel_marker_purple, null),
+                res.getColor(R.color.pastel_marker_blue, null),
+                res.getColor(R.color.pastel_marker_green, null),
+                res.getColor(R.color.pastel_marker_lime, null),
+
                 res.getColor(R.color.dark_grass, null),
                 res.getColor(R.color.dark_grey_blue, null),
                 res.getColor(R.color.dark_night_sky, null),
@@ -85,6 +109,11 @@ public class ColorItems extends Items {
                 res.getColor(R.color.dark_sea_wave, null),
                 res.getColor(R.color.dark_sky, null),
                 res.getColor(R.color.dark_tomato, null),
+
+                res.getColor(R.color.programming_blue, null),
+                res.getColor(R.color.programming_green, null),
+                res.getColor(R.color.programming_lime, null),
+                res.getColor(R.color.programming_purple, null),
 
                 res.getColor(R.color.pastel_lavender, null),
                 res.getColor(R.color.pastel_lilac, null),

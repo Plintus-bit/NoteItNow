@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import com.example.noteitnow.notes_entities.DrawingStructure;
 import com.example.noteitnow.notes_entities.EditIndexes;
+import com.example.noteitnow.notes_entities.NoteSavings;
 import com.example.noteitnow.notes_entities.NoteStructure;
 import com.example.noteitnow.notes_entities.TextSpans;
 import com.example.noteitnow.notes_entities.TextSpansEditor;
@@ -94,7 +95,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     private String current_action;
     private String current_file_name;
 
-    private boolean is_drawings_empty;
     private Resources res;
 
     // попап
@@ -171,7 +171,9 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
         setThemePropertiesToNote();
 
-        setCursorOnEndOfEditText();
+        if (note_main_text.length() > 0) {
+            setCursorOnPosition(note_main_text.length() - 1);
+        }
     }
 
     /**********************************************************************************
@@ -216,7 +218,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 }
                 temp_spans = null;
                 if (drawings != null) {
-                    is_drawings_empty = false;
                     for (int i = 0; i < drawings.size(); ++i) {
                         File file = PublicResources.createFile(drawings.get(i)
                                 .getDrawingFileName(), Doings.PNG);
@@ -326,7 +327,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         panel_views.add(new ExistView((ImageButton) findViewById(R.id.clear_styles_btn)));
 
         // рисунков нет
-        is_drawings_empty = true;
         drawings = new ArrayList<DrawingStructure>();
         // спанов нет
         spans_editor = new TextSpansEditor(new ArrayList<TextSpans>());
@@ -358,6 +358,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         is_pinned = false;
 
         setListenerOnNoteMainText();
+
+        current_file_name = PublicResources.EXTRA_DEFAULT_STRING_VALUE;
     }
 
     private void setListenerOnNoteMainText() {
@@ -462,6 +464,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
             case R.id.add_drawing_btn:
                 Intent intent = new Intent(this, CanvasActivity.class);
                 intent.setAction(PublicResources.ACTION_CREATE_NEW_CANVAS);
+                intent.putExtra(PublicResources.EXTRA_NOTE, getNewNote());
                 startActivityForResult(intent, PublicResources.REQUEST_NEW_CANVAS);
                 break;
             case R.id.pin_btn:
@@ -553,10 +556,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     /**********************************************************************************
      * установка курсора в нужную позицию */
-    public void setCursorOnEndOfEditText() {
-        if (note_main_text.getText().length() != 0) {
-            note_main_text.setSelection(note_main_text.length() - 1);
-        }
+    public void setCursorOnPosition(int position) {
+        note_main_text.setSelection(position);
     }
 
     /**********************************************************************************
@@ -566,7 +567,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 note_main_text.getText());
         TextSpansEditor.getTextWithNewSpan(span_text, span);
         note_main_text.setText(span_text);
-        setCursorOnEndOfEditText();
+        setCursorOnPosition(span.getEnd());
     }
 
     /**********************************************************************************
@@ -720,40 +721,21 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
      * возврат результата */
     private void forActivityResult() {
         Intent intent = new Intent();
-//        fixPointsInTextSpans();
-        if (current_action.equals(PublicResources.ACTION_CREATE_NEW_NOTE)) {
-            Log.d(PublicResources.DEBUG_LOG_TAG, ">>> create new");
-            // код обработки закрытия
-            boolean is_empty = ((note_name.getText().length()
-                    + note_main_text.getText().length()) == 0) && is_drawings_empty;
-            // Пустая заметка или нет
-            intent.putExtra(PublicResources.EXTRA_NOTE_IS_EMPTY, is_empty);
-            // Если не пустая, сообщить её данные
-            if (!is_empty) {
-                NoteStructure new_note = getNewNote();
-                intent.putExtra(PublicResources.EXTRA_NOTE, new_note);
-                // сохранение файла
-                File file = PublicResources.createFile(new_note.getFileName(), Doings.GSON);
-//                Log.d(PublicResources.DEBUG_LOG_TAG, file.getAbsolutePath());
-                PublicResources.saveOrReplaceGson(file.getAbsolutePath(),
-                        NoteStructure.getNoteToGsonString(new_note));
-                // TempResources.setTempPinIcon(pin_btn.getDrawable());
-            }
+        boolean is_empty = getEmpty();
+        // код обработки закрытия
+        // Пустая заметка или нет
+        intent.putExtra(PublicResources.EXTRA_NOTE_IS_EMPTY, is_empty);
+        // Если не пустая, сообщить её данные
+        NoteStructure created_note = getNewNote();
+        if (!is_empty) {
+            intent.putExtra(PublicResources.EXTRA_NOTE, created_note);
+            // сохранение файла
+            File file = PublicResources.createFile(created_note.getFileName(), Doings.GSON);
+            PublicResources.saveOrReplaceGson(file.getAbsolutePath(),
+                    NoteStructure.getNoteToGsonString(created_note));
         }
         else if (current_action.equals(PublicResources.ACTION_EDIT_EXIST_NOTE)) {
-            Log.d(PublicResources.DEBUG_LOG_TAG, ">>> edit exist");
-            try {
-                NoteStructure exist_note = getNewNote();
-                exist_note.setFileName(current_file_name);
-                intent.putExtra(PublicResources.EXTRA_NOTE, exist_note);
-                // сохранение файла
-                File file = PublicResources.createFile(current_file_name, Doings.GSON);
-                PublicResources.saveOrReplaceGson(file.getAbsolutePath(),
-                        NoteStructure.getNoteToGsonString(exist_note));
-                Log.d(PublicResources.DEBUG_LOG_TAG, "Finally!");
-            } catch (Exception e) {
-                Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
-            }
+            intent.putExtra(PublicResources.EXTRA_NOTE_TAG, created_note.getFileName());
         }
         clearTempResources();
         setResult(RESULT_OK, intent);
@@ -773,10 +755,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                                     PublicResources.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE);
                     if (!is_new_canvas_empty) {
                         ArrayList<Bitmap> bitmaps_array = TempResources.getTempDrawingsArray();
-                        if (bitmaps_array.size() > 0) {
-                            is_drawings_empty = false;
-                        }
-                        file_name = getNewFileName(Doings.PNG);
+                        file_name = NoteSavings.getNewFileName(Doings.PNG);
                         // добавить изображение в заметку
                         Bitmap new_drawing = bitmaps_array.get(bitmaps_array.size() - 1);
                         int bg_color = TempResources.getTempBGsForDrawings()
@@ -795,7 +774,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         Thread save_drawing = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                saveOrReplaceDrawing(file, new_drawing);
+                                NoteSavings.saveOrReplaceDrawing(file, new_drawing);
                                 Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Get it!");
                             }
                         });
@@ -832,7 +811,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         Thread save_drawing = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                saveOrReplaceDrawing(file, TempResources
+                                NoteSavings.saveOrReplaceDrawing(file, TempResources
                                         .getTempDrawingsArray().get(temp_index));
                                 Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Get it!");
                             }
@@ -849,7 +828,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                             image_is = getContentResolver().openInputStream(image_uri);
                             image_bmp = BitmapFactory.decodeStream(image_is);
                             if (image_bmp != null) {
-                                file_name = getNewFileName(Doings.PNG);
+                                file_name = NoteSavings.getNewFileName(Doings.PNG);
                                 // добавить изображение в заметку
                                 addImageDrawingToNote(R.layout.drawing_layout,
                                         file_name,
@@ -866,7 +845,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                                 Thread save_drawing = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        saveOrReplaceDrawing(file_1, final_image_bmp);
+                                        NoteSavings.saveOrReplaceDrawing(file_1, final_image_bmp);
                                         Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Get it!");
                                     }
                                 });
@@ -971,7 +950,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                             break;
                         }
                     }
-                    is_drawings_empty = drawings.isEmpty();
                     Toast.makeText(Note.this,
                             "Удалили, пиу-пиу!", Toast.LENGTH_SHORT).show();
                     return true;
@@ -979,6 +957,11 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 return true;
             }
         });
+    }
+
+    public void saveNote() {
+        NoteStructure created_note = getNewNote();
+        NoteSavings.saveNote(created_note);
     }
 
     public void addImageDrawingToNote(int image_layout, String tag,
@@ -995,42 +978,18 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     }
 
     /**********************************************************************************
-     * работа с файлами (рисунки) */
-
-    // добавить рисунок
-    public void saveOrReplaceDrawing(File file, Bitmap bitmap) {
-        OutputStream os;
-        try {
-            os = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
-            os.flush();
-            os.close();
-        } catch (Exception e) {
-            Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
-        }
-    }
-
-    public String getNewFileName(Doings file_extension) {
-        String extension = "_";
-        switch (file_extension) {
-            case GSON:
-                extension = PublicResources.TEXT_GSON_PREFIX;
-                break;
-            case PNG:
-                extension = PublicResources.IMAGE_PNG_PREFIX;
-                break;
-        }
-        String time_stamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
-        return (extension + time_stamp + "_");
-    }
-
-    /**********************************************************************************
      * сохранение заметки */
     public NoteStructure getNewNote() {
         NoteStructure new_note = null;
         try {
             new_note = new NoteStructure();
-            new_note.setFileName(getNewFileName(Doings.GSON));
+            if (current_file_name.equals(PublicResources.EXTRA_DEFAULT_STRING_VALUE)) {
+                current_file_name = NoteSavings.getNewFileName(Doings.GSON);
+                new_note.setFileName(current_file_name);
+            }
+            else {
+                new_note.setFileName(current_file_name);
+            }
             new_note.setName(note_name.getText().toString());
             new_note.setText(note_main_text.getText().toString());
             new_note.setPin(pin_ids[Integer.parseInt(pin_btn.getTag().toString())]);
@@ -1041,7 +1000,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
             Date date = new Date();
             SimpleDateFormat date_format = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
             new_note.setDate(PublicResources.getCollectedDate(date_format.format(date)));
-            spans_editor.fixTextSpans();
+            spans_editor.makeCleaning();
             new_note.setSpans(spans_editor.getTextSpans());
         } catch (Exception e) {
             Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
@@ -1070,12 +1029,12 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     }
 
     public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
+        // проверка наличия разрешения на запись
         int permission = ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
+            // если нет разрешений
             ActivityCompat.requestPermissions(
                     activity,
                     PublicResources.PERMISSIONS_STORAGE,
@@ -1084,8 +1043,15 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
+    public boolean getEmpty() {
+        return ((note_name.getText().length()
+                + note_main_text.getText().length()) == 0) && drawings.isEmpty();
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PublicResources.REQUEST_EXTERNAL_STORAGE:
@@ -1102,6 +1068,10 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onStop() {
+        boolean is_note_empty = getEmpty();
+        if (!is_note_empty) {
+            saveNote();
+        }
         if (current_toast != null) {
             current_toast.cancel();
         }

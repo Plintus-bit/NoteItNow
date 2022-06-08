@@ -343,26 +343,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if (menuItem.getItemId() == R.id.delete_note_btn) {
                     String file_name = selected_card.getTag().toString();
-                    for (int i = 0; i < notes.size(); ++i) {
-                        if (notes.get(i).getFileName().equals(file_name)) {
-                            ArrayList<DrawingStructure> will_be_deleted_drawings = notes
-                                    .get(i).getDrawings();
-                            for (DrawingStructure temp_drawing : will_be_deleted_drawings) {
-                                // удалить картинки
-                                File file_png = PublicResources
-                                        .createFile(temp_drawing.getDrawingFileName(), Doings.PNG);
-                                PublicResources.deleteFile(file_png);
-                            }
-                            // удалить файл заметки
-                            File file_gson = PublicResources.createFile(file_name, Doings.GSON);
-                            PublicResources.deleteFile(file_gson);
-                            notes.remove(i);
-                            setAllNotesNumber(notes.size());
-                            // обновить
-                            addSearchFilter(PublicResources.EXTRA_DEFAULT_STRING_VALUE);
-                            break;
-                        }
-                    }
+                    noteDeletion(file_name);
 //                    Toast.makeText(MainActivity.this,
 //                            "Удалить: " + selected_card.getTag().toString(),
 //                            Toast.LENGTH_SHORT).show();
@@ -373,7 +354,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
     }
 
-    private void updateRecycleView() {
+    protected void noteDeletion(String file_name) {
+        for (int i = 0; i < notes.size(); ++i) {
+            if (notes.get(i).getFileName().equals(file_name)) {
+                ArrayList<DrawingStructure> will_be_deleted_drawings = notes
+                        .get(i).getDrawings();
+                for (DrawingStructure temp_drawing : will_be_deleted_drawings) {
+                    // удалить картинки
+                    File file_png = PublicResources
+                            .createFile(temp_drawing.getDrawingFileName(), Doings.PNG);
+                    PublicResources.deleteFile(file_png);
+                }
+                // удалить файл заметки
+                File file_gson = PublicResources.createFile(file_name, Doings.GSON);
+                PublicResources.deleteFile(file_gson);
+                notes.remove(i);
+                setAllNotesNumber(notes.size());
+                // обновить
+                addSearchFilter(PublicResources.EXTRA_DEFAULT_STRING_VALUE);
+                break;
+            }
+        }
+    }
+
+    protected void updateRecycleView() {
         note_place_rv.setHasFixedSize(true);
         note_place_rv.setLayoutManager(
                 new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL));
@@ -382,9 +386,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         notes_adapter.setIsDarculaActive(PublicResources.preferences
                 .getBoolean(PublicResources.THEME_KEY, false));
         note_place_rv.setAdapter(notes_adapter);
+//        note_place_rv.post(new Runnable()
+//        {
+//            @Override
+//            public void run() {
+//                notes_adapter.notifyDataSetChanged();
+//            }
+//        });
     }
 
-    private void setNewPinState(NoteStructure note_with_new_state) {
+    protected void setNewPinState(NoteStructure note_with_new_state) {
         File file = PublicResources
                 .createFile(note_with_new_state.getFileName(), Doings.GSON);
         PublicResources.saveOrReplaceGson(file.getAbsolutePath(),
@@ -409,7 +420,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ArrayList<NoteStructure> filtered_list = new ArrayList<NoteStructure>();
         for (NoteStructure current_note : notes) {
             if (current_note.getName().toLowerCase().contains(search_text.toLowerCase())
-            || current_note.getText().toString().toLowerCase().contains(search_text.toLowerCase())) {
+            || current_note.getText().toString()
+                    .toLowerCase().contains(search_text.toLowerCase())) {
                 filtered_list.add(current_note);
             }
         }
@@ -424,11 +436,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        Log.d(PublicResources.DEBUG_LOG_TAG,
 //                "result: " + String.valueOf(resultCode) + "; requestCode: " + requestCode);
         if (RESULT_OK == resultCode) {
+            boolean is_empty = intent
+                    .getBooleanExtra(PublicResources.EXTRA_NOTE_IS_EMPTY,
+                            PublicResources.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE);
             switch (requestCode) {
                 case PublicResources.REQUEST_NOTE_EMPTY:
-                    boolean is_empty = intent
-                            .getBooleanExtra(PublicResources.EXTRA_NOTE_IS_EMPTY,
-                                    PublicResources.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE);
                     if (!is_empty) {
                         NoteStructure new_note = (NoteStructure) intent
                                 .getSerializableExtra(PublicResources.EXTRA_NOTE);
@@ -438,13 +450,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case PublicResources.REQUEST_NOTE_EDIT:
                     try {
-                        NoteStructure exist_note = (NoteStructure) intent
-                                .getSerializableExtra(PublicResources.EXTRA_NOTE);
-                        for (int i = 0; i < notes.size(); ++i) {
-                            if (notes.get(i).getFileName().equals(exist_note.getFileName())) {
-                                notes.set(i, exist_note);
-//                                notes_adapter.notifyDataSetChanged();
-                                break;
+                        if (is_empty) {
+                            noteDeletion(intent.getStringExtra(PublicResources.EXTRA_NOTE_TAG));
+                        }
+                        else {
+                            NoteStructure exist_note = (NoteStructure) intent
+                                    .getSerializableExtra(PublicResources.EXTRA_NOTE);
+                            for (int i = 0; i < notes.size(); ++i) {
+                                if (notes.get(i).getFileName().equals(exist_note.getFileName())) {
+                                    notes.set(i, exist_note);
+                                    break;
+                                }
                             }
                         }
                     } catch (Exception e) {

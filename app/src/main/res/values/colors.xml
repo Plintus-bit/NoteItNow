@@ -8,6 +8,8 @@
     <color name="input_border_grey">#E6EBED</color>
     <color name="very_light_grey">#F5F5F5</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="deep_contrast_blue">#303F9F</color>
+    <color name="deep_dark_blue">#232C63</color>
     <color name="contrast_blue">#4571C6</color>
     <color name="light_blue">#B3D6EA</color>
 </resources>

@@ -48,7 +48,14 @@
     <color name="pastel_pink_lilac">#FFC9F0</color>
     <color name="pastel_orange">#FFD6BE</color>
 
-    <color name="pastel_marker_blue">#D6EFFD</color>
+    <color name="pastel_marker_yellow">#F9FBE7</color>
+    <color name="pastel_marker_orange">#FFF3E0</color>
+    <color name="pastel_marker_magenta">#FFEBEE</color>
+    <color name="pastel_marker_pink">#F3E5F5</color>
+    <color name="pastel_marker_purple">#E8EAF6</color>
+    <color name="pastel_marker_blue">#E0F7FA</color>
+    <color name="pastel_marker_green">#E8F5E9</color>
+    <color name="pastel_marker_lime">#F4F8E9</color>
 
     <color name="programming_lime">#F5FF99</color>
     <color name="programming_green">#b2ea39</color>

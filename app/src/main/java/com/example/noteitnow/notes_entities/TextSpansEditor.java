@@ -66,22 +66,19 @@ public class TextSpansEditor {
 
     /**********************************************************************************
      * Методы */
-    public void addSpan(TextSpans span) {
-        spans.add(span);
-        this.spans_size = this.spans.size();
-    }
-
     // Если новый span что-то перекрывает, удалить старый
     public SpannableStringBuilder removeUselessTextSpans(TextSpans new_span, String text) {
         ArrayList<Integer> index_for_delete = new ArrayList<Integer>();
         String temp_text = null;
         boolean is_need_to_add_span = true;
         EditIndexes new_span_index = new EditIndexes(new_span.getStart(), new_span.getEnd());
+//        Log.d(PublicResources.DEBUG_LOG_TAG, "spans before edit >>> " + spans_size);
         for (int i = 0; i < spans.size(); ++i) {
             EditIndexes old_span_index =
                     new EditIndexes(spans.get(i).getStart(),spans.get(i).getEnd());
             int state = UNKNOWN_STATE;
             if (!isDataTypeEquals(new_span, spans.get(i))) {
+                state = getSpecialState(new_span_index, old_span_index);
                 // тут происходит особая обработка разнотипов
                 switch (new_span.getSpanType()) {
                     case NORMAL:
@@ -89,8 +86,8 @@ public class TextSpansEditor {
                         switch (spans.get(i).getSpanType()) {
                             case BOLD:
                             case ITALIC:
-                                state = getSpecialState(new_span_index, old_span_index);
-                                if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
+                                if (fixSpecialSpan(new_span_index, i, state,
+                                        new_span.getSpanType())) {
                                     temp_text = text;
                                 }
                                 if (spans_size > spans.size()) {
@@ -102,7 +99,6 @@ public class TextSpansEditor {
                         }
                     case CLEAR:
                         is_need_to_add_span = false;
-                        state = getSpecialState(new_span_index, old_span_index);
                         if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
                             temp_text = text;
                         }
@@ -116,12 +112,9 @@ public class TextSpansEditor {
             }
             // перебор возможных вариантов
             if (isDataEquals(new_span, spans.get(i))) {
-                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> DATA EQUALS");
                 // при одинаковых данных бывает удаление
                 state = getSpecialState(new_span_index, old_span_index);
-//                Log.d(PublicResources.DEBUG_LOG_TAG, "STATE ! >>> " + String.valueOf(state));
                 if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
-//                    Log.d(PublicResources.DEBUG_LOG_TAG, ">>> NEED TO REDRAW");
                     is_need_to_add_span = false;
                     temp_text = text;
                     if (spans_size > spans.size()) {
@@ -159,11 +152,9 @@ public class TextSpansEditor {
         }
         index_for_delete = null;
         if (is_need_to_add_span) {
-//            Log.d(PublicResources.DEBUG_LOG_TAG, ">>> SPAN ADDED");
             spans.add(new_span);
         }
         if (temp_text != null) {
-            Log.d(PublicResources.DEBUG_LOG_TAG, "REDRAWING >>>");
             return getSpannedString(temp_text);
         }
         spans_size = spans.size();
@@ -239,9 +230,6 @@ public class TextSpansEditor {
                     --index;
                 }
             }
-//            Log.d(PublicResources.DEBUG_LOG_TAG, "FIXED SPAN >>> " +
-//                    String.valueOf(spans.get(index).getStart()) + " "
-//                    + String.valueOf(spans.get(index).getEnd()));
         }
     }
 
@@ -355,6 +343,11 @@ public class TextSpansEditor {
             case BEFORE_INSIDE:
                 temp_span.setStart(new_index.getStart());
                 temp_span.setEnd(spans.get(span_index).getEnd() - new_index.getLength());
+                spans.set(span_index, temp_span);
+                break;
+            case BEFORE:
+                temp_span.setStart(temp_span.getStart() - new_index.getLength());
+                temp_span.setEnd(temp_span.getEnd() - new_index.getLength());
                 spans.set(span_index, temp_span);
                 break;
             case AFTER_INSIDE:

@@ -63,6 +63,7 @@ public class PublicResources {
 
     // EXTRAS для передачи данных
     public static final String EXTRA_NOTE = "NOTE";
+    public static final String EXTRA_NOTE_TAG = "NOTE_TAG";
     public static final String EXTRA_CANVAS_TAG = "CANVAS_TAG";
     public static final String EXTRA_BG_CANVAS_COLOR = "BG_CANVAS_COLOR";
     public static final String EXTRA_DRAWING_TEMP_INDEX = "DRAWING_TEMP_INDEX";

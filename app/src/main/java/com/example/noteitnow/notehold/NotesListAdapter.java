@@ -6,6 +6,8 @@ import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +30,7 @@ import java.util.Random;
 public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
     Context context;
     ArrayList<NoteStructure> notes_list;
+    Animation anim;
     NoteActionsListener note_cl;
     int[] colors;
     Months months;
@@ -44,6 +47,7 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
         colors = new ColorItems(res).getColors(Doings.PASTEL_SOFT_PINNED);
         is_darcula_active = PublicResources.preferences
                 .getBoolean(PublicResources.THEME_KEY, false);
+        anim = AnimationUtils.loadAnimation(context, R.anim.translate_anim);
     }
 
     @NonNull
@@ -109,6 +113,7 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
         }
         ArrayList<Integer> date = notes_list.get(position).getDate();
         holder.note_date_txt.setText(getDateFormat(date));
+//        holder.note_date_txt.startAnimation(anim);
     }
 
     private String getDateFormat(ArrayList<Integer> date) {

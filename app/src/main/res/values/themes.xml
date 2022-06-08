@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.NoteItNow" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorPrimary">@color/deep_contrast_blue</item>
         <item name="colorPrimaryVariant">@color/very_light_grey</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->

@@ -27,6 +27,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
@@ -355,6 +357,9 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         };
         note_name.setOnClickListener(note_text_cl);
         note_main_text.setOnClickListener(note_text_cl);
+
+        note_main_text.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        note_main_text.setSingleLine(false);
 
         TempResources.setTempPinIcon(pin_btn.getDrawable());
 

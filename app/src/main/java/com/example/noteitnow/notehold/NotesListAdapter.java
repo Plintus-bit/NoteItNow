@@ -2,6 +2,10 @@ package com.example.noteitnow.notehold;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.noteitnow.R;
 import com.example.noteitnow.notes_entities.NoteStructure;
+import com.example.noteitnow.notes_entities.TextSpans;
 import com.example.noteitnow.statics_entity.Doings;
 import com.example.noteitnow.statics_entity.PublicResources;
 import com.example.noteitnow.statics_entity.items.ColorItems;
@@ -103,7 +108,9 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
             holder.note_title_txt
                     .setText(notes_list.get(position).getName());
         }
-        holder.note_text_txt.setText(notes_list.get(position).getText());
+        SpannableString text = new SpannableString(notes_list.get(position).getText());
+        setSpanOnText(text, notes_list.get(position).getSpans());
+        holder.note_text_txt.setText(text);
         if (notes_list.get(position).getPinned()) {
             holder.pinned_icon.setVisibility(View.VISIBLE);
             holder.pinned_icon.setColorFilter(getRandomColor());
@@ -114,6 +121,34 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
         ArrayList<Integer> date = notes_list.get(position).getDate();
         holder.note_date_txt.setText(getDateFormat(date));
 //        holder.note_date_txt.startAnimation(anim);
+    }
+
+    protected void setSpanOnText(SpannableString text, ArrayList<TextSpans> spans) {
+        for (TextSpans curr_span : spans) {
+            switch (curr_span.getSpanType()) {
+                case COLOR:
+                    text.setSpan(
+                            new ForegroundColorSpan(curr_span.getData()),
+                            curr_span.getStart(), curr_span.getEnd(),
+                            curr_span.getFlag());
+                    break;
+                case TEXT_BG:
+                    text.setSpan(
+                            new BackgroundColorSpan(curr_span.getData()),
+                            curr_span.getStart(), curr_span.getEnd(),
+                            curr_span.getFlag());
+                    break;
+                case BOLD:
+                case ITALIC:
+                    text.setSpan(
+                            new StyleSpan(curr_span.getData()),
+                            curr_span.getStart(), curr_span.getEnd(),
+                            curr_span.getFlag());
+                    break;
+                default:
+                    //nothing
+            }
+        }
     }
 
     private String getDateFormat(ArrayList<Integer> date) {

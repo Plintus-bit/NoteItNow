@@ -358,9 +358,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         note_name.setOnClickListener(note_text_cl);
         note_main_text.setOnClickListener(note_text_cl);
 
-        note_main_text.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        note_main_text.setSingleLine(false);
-
         TempResources.setTempPinIcon(pin_btn.getDrawable());
 
         popup_cl = getPopupMenuItemCl();

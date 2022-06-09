@@ -60,6 +60,8 @@ public class PublicResources {
     public static final int REQUEST_EDIT_CANVAS = 3;
     public static final int REQUEST_NOTE_EDIT = 4;
     public static final int REQUEST_PICK_IMAGE = 5;
+    public static final int REQUEST_CREATING_TEMP_FILES = 6;
+    public static final int REQUEST_SEND_MESSAGE = 7;
 
     // EXTRAS для передачи данных
     public static final String EXTRA_NOTE = "NOTE";
@@ -68,7 +70,6 @@ public class PublicResources {
     public static final String EXTRA_BG_CANVAS_COLOR = "BG_CANVAS_COLOR";
     public static final String EXTRA_DRAWING_TEMP_INDEX = "DRAWING_TEMP_INDEX";
     public static final String EXTRA_NOTE_IS_EMPTY = "IS_EMPTY";
-    public static final String EXTRA_CANVAS_IS_EDIT = "IS_EDIT";
     public static final String EXTRA_CANVAS_IS_EMPTY = "CANVAS_IS_EMPTY";
 
     // ACTIONS для передачи данных
@@ -91,6 +92,7 @@ public class PublicResources {
     // директория с заметками
     public static File NOTES_DIR;
     public static File IMAGES_DIR;
+    public static File TEMP_IMAGES_DIR;
 
     // расширения
     public static final String IMAGE_PNG = ".png";
@@ -233,6 +235,9 @@ public class PublicResources {
                 break;
             case GSON:
                 file = new File(NOTES_DIR, file_name + PublicResources.TEXT_GSON);
+                break;
+            case TEMP_PNG:
+                file = new File(TEMP_IMAGES_DIR, file_name + PublicResources.IMAGE_PNG);
                 break;
         }
 //        if (file != null) {

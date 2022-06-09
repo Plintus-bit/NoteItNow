@@ -234,6 +234,7 @@ public class DrawingView extends View {
                 break;
             case BACKGROUND:
                 current_canvas_bg_color = color;
+                is_edit = true;
                 invalidate();
                 break;
             default:

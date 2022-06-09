@@ -176,7 +176,6 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesViewHolder> {
 
     public void addFilteredNotes(ArrayList<NoteStructure> filtered_list) {
         notes_list = filtered_list;
-        notifyDataSetChanged();
     }
 }
 

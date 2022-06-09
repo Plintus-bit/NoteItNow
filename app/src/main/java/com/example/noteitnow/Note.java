@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.preference.PreferenceManager;
 
 import android.Manifest;
@@ -16,12 +17,15 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -80,6 +84,8 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
 
     ColorItems color_items;
     DataItems data_items;
+
+    private boolean is_creating_complete = false;
 
     Toast current_toast = null;
 
@@ -230,7 +236,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                                 drawings.get(i).getDrawingBg());
                     }
                 }
-                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Processed!");
+//                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Processed!");
             } catch (Exception e) {
                 Log.d(PublicResources.DEBUG_LOG_TAG, "error (1): " + e.getMessage());
             }
@@ -406,16 +412,24 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 return true;
             case R.id.share_btn:
                 Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-                ArrayList<Uri> files_data = null;
+                saveTempImageFiles();
+                while (!is_creating_complete) {
+                    // do nothing
+                }
+                ArrayList<Uri> files_data = getImagesUri();
+                is_creating_complete = false;
                 // настройки намерения
-                intent.setType("text/plain");
+                intent.setType("image/png");
                 intent.putExtra(Intent.EXTRA_TITLE, note_name.getText().toString());
+                intent.putExtra(Intent.EXTRA_SUBJECT, note_name.getText().toString());
                 intent.putExtra(Intent.EXTRA_TEXT, note_main_text.getText().toString());
-
+                if (files_data != null) {
+                    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files_data);
+                }
                 List<ResolveInfo> ready_for_get_activities = getPackageManager()
                         .queryIntentActivities(intent, 0);
                 if (ready_for_get_activities.size() > 0) {
-                    startActivity(intent);   
+                    startActivityForResult(intent, PublicResources.REQUEST_SEND_MESSAGE);
                 }
                 else {
                     if (current_toast != null) {
@@ -433,12 +447,33 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
-    private ArrayList<Uri> createTempUriForDrawings() {
-        ArrayList<Uri> files_uri = null;
-
-        return files_uri;
+    public void saveTempImageFiles() {
+        Thread saving = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                savingTemporaryImages();
+                is_creating_complete = true;
+            }
+        });
+        saving.start();
     }
 
+    protected void savingTemporaryImages() {
+        for (int i = 0; i <drawings.size(); ++i) {
+            File file = PublicResources
+                    .createFile(drawings.get(i).getDrawingFileName(), Doings.TEMP_PNG);
+            File source_file = PublicResources
+                    .createFile(drawings.get(i).getDrawingFileName(), Doings.PNG);
+            Bitmap drawing_image = PublicResources
+                    .parseBitmapFromDrawingFile(source_file.getAbsolutePath());
+            Bitmap bitmap_bg = Bitmap.createBitmap(drawing_image.getWidth(),
+                    drawing_image.getHeight(), drawing_image.getConfig());
+            Canvas canvas = new Canvas(bitmap_bg);
+            canvas.drawColor(drawings.get(i).getDrawingBg());
+            canvas.drawBitmap(drawing_image, 0, 0, null);
+            NoteSavings.saveOrReplaceDrawing(file, bitmap_bg);
+        }
+    }
 
     // попап меню
     private void showPopupForDrawing(View view) {
@@ -748,6 +783,9 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+        if (requestCode == PublicResources.REQUEST_SEND_MESSAGE) {
+            startDeletionTempFiles();
+        }
         if (resultCode == RESULT_OK) {
             String file_name = "";
             NoteStructure editted_note = (NoteStructure) intent
@@ -820,10 +858,26 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                             Log.d(PublicResources.DEBUG_LOG_TAG, e.getMessage());
                         }
                     }
+                    break;
                 default:
                     // nothing
             }
         }
+    }
+
+    private void startDeletionTempFiles() {
+        Thread deletion_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                File[] temp_files = PublicResources.TEMP_IMAGES_DIR.listFiles();
+                for (File file : temp_files) {
+                    PublicResources.deleteFile(file);
+                }
+//                    Log.d(PublicResources.DEBUG_LOG_TAG,"temp_dir_size >>> " +
+//                            String.valueOf(PublicResources.TEMP_IMAGES_DIR.listFiles().length));
+            }
+        });
+        deletion_thread.start();
     }
 
     private void clearPanelItems() {
@@ -993,6 +1047,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         super.onDestroy();
         colors = null;
         pin_ids = null;
+        startDeletionTempFiles();
         note_name.setOnClickListener(null);
         note_main_text.setOnClickListener(null);
         for (int i = 0; i < this_note_place_ll.getChildCount(); ++i) {
@@ -1036,6 +1091,30 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 }
                 return;
         }
+    }
+
+    private ArrayList<Uri> getImagesUri() {
+        ArrayList<Uri> temp_image_uris = new ArrayList<>();
+        File[] image_files = PublicResources.TEMP_IMAGES_DIR.listFiles();
+        if (image_files.length > 0) {
+            for (File image_file : image_files) {
+                try {
+                    temp_image_uris.add(FileProvider
+                            .getUriForFile(Note.this,
+                                    PublicResources.FILE_PROVIDER,
+                                    image_file));
+                    Log.d(PublicResources.DEBUG_LOG_TAG,"uri >>> " +
+                            temp_image_uris.get(temp_image_uris.size() - 1).toString());
+                } catch (Exception e) {
+                    Log.d(PublicResources.DEBUG_LOG_TAG, e.getMessage());
+                }
+            }
+        }
+        else {
+            Log.d(PublicResources.DEBUG_LOG_TAG,
+                    "Current directory hasn't exists files.");
+        }
+        return temp_image_uris;
     }
 
     @Override

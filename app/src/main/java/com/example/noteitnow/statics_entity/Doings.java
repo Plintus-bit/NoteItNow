@@ -10,6 +10,7 @@ public enum Doings {
     EXIST_CANVAS,
     GSON,
     PNG,
+    TEMP_PNG,
     TEXT,
     TEXT_BG,
     COLOR,

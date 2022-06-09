@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         PublicResources.NOTES_DIR.mkdir();
         PublicResources.IMAGES_DIR = new File(getFilesDir(), PublicResources.FILES_DIRECTORY[0]);
         PublicResources.IMAGES_DIR.mkdir();
+        PublicResources.TEMP_IMAGES_DIR = new File(getCacheDir(), PublicResources.FILES_DIRECTORY[3]);
+        PublicResources.TEMP_IMAGES_DIR.mkdir();
 
         PublicResources.res = getResources();
         initOnCreate();
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     notes.add(PublicResources.parseGsonFromFile(file_path));
                 }
                 sortNotes();
-                notes_adapter.notifyDataSetChanged();
+                addSearchFilter(PublicResources.EXTRA_DEFAULT_STRING_VALUE);
             }
         } catch (Exception e) {
             Log.d(PublicResources.DEBUG_LOG_TAG, "error: " + e.getMessage());
@@ -379,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     protected void updateRecycleView() {
-        note_place_rv.setHasFixedSize(true);
+//        note_place_rv.setHasFixedSize(true);
         note_place_rv.setLayoutManager(
                 new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL));
         notes_adapter = new NotesListAdapter(MainActivity.this, notes, note_cl,
@@ -387,13 +389,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         notes_adapter.setIsDarculaActive(PublicResources.preferences
                 .getBoolean(PublicResources.THEME_KEY, false));
         note_place_rv.setAdapter(notes_adapter);
-//        note_place_rv.post(new Runnable()
-//        {
-//            @Override
-//            public void run() {
-//                notes_adapter.notifyDataSetChanged();
-//            }
-//        });
+        note_place_rv.post(new Runnable()
+        {
+            @Override
+            public void run() {
+                notes_adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     protected void setNewPinState(NoteStructure note_with_new_state) {
@@ -427,6 +429,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         notes_adapter.addFilteredNotes(filtered_list);
+        if (!note_place_rv.isComputingLayout()) {
+            notes_adapter.notifyDataSetChanged();
+        }
     }
 
     /**********************************************************************************

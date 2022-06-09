@@ -116,6 +116,8 @@
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/search_bar.xml" value="0.2985" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/search_bar_dark.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/side_nav_bar.xml" value="0.302" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/splash_screen.xml" value="0.302" />
+        <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/drawable/splash_screen_night.xml" value="0.302" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/font/fonts.xml" value="0.26458333333333334" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_canvas.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/NoteItNow/app/src/main/res/layout/activity_main.xml" value="0.25" />

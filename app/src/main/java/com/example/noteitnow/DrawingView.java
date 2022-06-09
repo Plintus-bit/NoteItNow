@@ -311,6 +311,10 @@ public class DrawingView extends View {
         return is_edit;
     }
 
+    public void setIsEdit(boolean is_edit) {
+        this.is_edit = is_edit;
+    }
+
     // метод установки существующего рисунка
     public void setDrawing(Bitmap exist_drawing, int bg_color) {
         current_canvas_bg_color = bg_color;

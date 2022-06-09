@@ -378,7 +378,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void afterTextChanged(Editable editable) {
                 if (!(note_main_text.length() == current_length)) {
-                    end_index = note_main_text.getSelectionStart();
+                    end_index = note_main_text.getSelectionEnd();
                     if (end_index < start_index) {
                         spans_editor.addEditIndex(end_index, start_index, Doings.DELETION);
                     }
@@ -459,12 +459,12 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         }
         start_selection = note_main_text.getSelectionStart();
         end_selection = note_main_text.getSelectionEnd();
+
         TextSpans span = null;
         switch (view.getId()) {
             case R.id.add_drawing_btn:
-                Intent intent = new Intent(this, CanvasActivity.class);
+                Intent intent = getDrawingIntent();
                 intent.setAction(PublicResources.ACTION_CREATE_NEW_CANVAS);
-                intent.putExtra(PublicResources.EXTRA_NOTE, getNewNote());
                 startActivityForResult(intent, PublicResources.REQUEST_NEW_CANVAS);
                 break;
             case R.id.pin_btn:
@@ -501,7 +501,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
                         Doings.BOLD,
                         Typeface.BOLD, Spannable.SPAN_USER);
-                spans_editor.makeCleaning();
                 setSpansOnText(span);
                 setNewSpannedText(span);
                 break;
@@ -510,7 +509,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
                         Doings.ITALIC,
                         Typeface.ITALIC, Spannable.SPAN_USER);
-                spans_editor.makeCleaning();
                 setSpansOnText(span);
                 setNewSpannedText(span);
                 break;
@@ -519,17 +517,10 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
                         Doings.NORMAL,
                         Typeface.NORMAL, Spannable.SPAN_USER);
-                spans_editor.makeCleaning();
                 setNewSpannedText(span);
                 break;
             case R.id.add_image_btn:
-                if (current_toast != null) {
-                    current_toast.cancel();
-                }
-                current_toast = Toast.makeText(Note.this,
-                        "Функция находится в разработке :)",
-                        Toast.LENGTH_SHORT);
-                current_toast.show();
+                showNotSupportedMessage();
 //                verifyStoragePermissions(Note.this);
 //                if (!PublicResources.has_external_permission) {
 //                    return;
@@ -546,12 +537,24 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         note_main_text.getSelectionStart(), note_main_text.getSelectionEnd(),
                         Doings.CLEAR,
                         PublicResources.CANCEL_ID, Spannable.SPAN_USER);
-                spans_editor.makeCleaning();
                 setNewSpannedText(span);
+                break;
+            case R.id.marker_list_btn:
+                showNotSupportedMessage();
                 break;
             default:
                 // nothing
         }
+    }
+
+    protected void showNotSupportedMessage() {
+        if (current_toast != null) {
+            current_toast.cancel();
+        }
+        current_toast = Toast.makeText(Note.this,
+                "Функция находится в разработке :)",
+                Toast.LENGTH_SHORT);
+        current_toast.show();
     }
 
     /**********************************************************************************
@@ -669,7 +672,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                                 current_text_bg_color, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                         setSpansOnText(span);
                         // добавление и очистка
-                        spans_editor.makeCleaning();
+//                        spans_editor.makeCleaning();
                         setNewSpannedText(span);
                     }
                 };
@@ -686,7 +689,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                                 current_text_color, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
                         setSpansOnText(span);
                         // добавление и очистка
-                        spans_editor.makeCleaning();
+//                        spans_editor.makeCleaning();
                         setNewSpannedText(span);
                     }
                 };
@@ -747,15 +750,20 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, intent);
         if (resultCode == RESULT_OK) {
             String file_name = "";
+            NoteStructure editted_note = (NoteStructure) intent
+                    .getSerializableExtra(PublicResources.EXTRA_NOTE);
+            current_file_name = editted_note.getFileName();
+            drawings = editted_note.getDrawings();
             switch (requestCode) {
                 // получение рисунка
                 case PublicResources.REQUEST_NEW_CANVAS:
                     boolean is_new_canvas_empty = intent
                             .getBooleanExtra(PublicResources.EXTRA_CANVAS_IS_EMPTY,
                                     PublicResources.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE);
+                    file_name = intent.getStringExtra(PublicResources.EXTRA_CANVAS_TAG);
                     if (!is_new_canvas_empty) {
                         ArrayList<Bitmap> bitmaps_array = TempResources.getTempDrawingsArray();
-                        file_name = NoteSavings.getNewFileName(Doings.PNG);
+//                        file_name = NoteSavings.getNewFileName(Doings.PNG);
                         // добавить изображение в заметку
                         Bitmap new_drawing = bitmaps_array.get(bitmaps_array.size() - 1);
                         int bg_color = TempResources.getTempBGsForDrawings()
@@ -763,22 +771,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                         addImageDrawingToNote(R.layout.drawing_layout,
                                 file_name,
                                 new_drawing, bg_color);
-
-                        // добавление в массив
-                        File file = PublicResources.createFile(file_name, Doings.PNG);
-                        DrawingStructure catched_drawing = new DrawingStructure();
-                        catched_drawing.setDrawingBg(bg_color);
-                        catched_drawing.setDrawingFileName(file_name);
-                        drawings.add(catched_drawing);
-                        // добавление изображения в файл
-                        Thread save_drawing = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                NoteSavings.saveOrReplaceDrawing(file, new_drawing);
-                                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Get it!");
-                            }
-                        });
-                        save_drawing.start();
                     }
                     break;
                 case PublicResources.REQUEST_EDIT_CANVAS:
@@ -791,33 +783,6 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                     waiting_for_result.setBackground(img_bg);
                     waiting_for_result.setImageBitmap(TempResources
                             .getTempDrawingsArray().get(temp_index));
-
-                    // замена записи в массиве
-                    file_name = intent.getStringExtra(PublicResources.EXTRA_CANVAS_TAG);
-                    File file = PublicResources.createFile(file_name, Doings.PNG);
-                    DrawingStructure editing_drawing = new DrawingStructure();
-                    editing_drawing.setDrawingBg(TempResources
-                            .getTempBGsForDrawings().get(temp_index));
-                    editing_drawing.setDrawingFileName(file_name);
-                    for (int i = 0; i < drawings.size(); ++i) {
-                        if (drawings.get(i).getDrawingFileName().equals(file_name)) {
-                            drawings.set(i, editing_drawing);
-                            break;
-                        }
-                    }
-                    if (intent.getBooleanExtra(PublicResources.EXTRA_CANVAS_IS_EDIT,
-                            !PublicResources.EXTRA_NOTE_IS_EMPTY_DEFAULT_VALUE)) {
-                        // добавление изображения в файл
-                        Thread save_drawing = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                NoteSavings.saveOrReplaceDrawing(file, TempResources
-                                        .getTempDrawingsArray().get(temp_index));
-                                Log.d(PublicResources.DEBUG_LOG_TAG, ">>> Get it!");
-                            }
-                        });
-                        save_drawing.start();
-                    }
                     break;
                 case PublicResources.REQUEST_PICK_IMAGE:
                     if (intent != null) {
@@ -916,7 +881,7 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                     Bitmap draw_bmp = ((BitmapDrawable)
                             (waiting_for_result.getDrawable())).getBitmap();
                     // редактируем
-                    Intent intent = new Intent(Note.this, CanvasActivity.class);
+                    Intent intent = getDrawingIntent();
                     for (int index = 0; index < temp_drawings.size(); ++index) {
                         if (draw_bmp.equals(temp_drawings.get(index))) {
                             intent.putExtra(PublicResources.EXTRA_BG_CANVAS_COLOR,
@@ -957,6 +922,13 @@ public class Note extends AppCompatActivity implements View.OnClickListener {
                 return true;
             }
         });
+    }
+
+    public Intent getDrawingIntent() {
+        Intent intent = new Intent(Note.this, CanvasActivity.class);
+        NoteStructure note = getNewNote();
+        intent.putExtra(PublicResources.EXTRA_NOTE, note);
+        return intent;
     }
 
     public void saveNote() {

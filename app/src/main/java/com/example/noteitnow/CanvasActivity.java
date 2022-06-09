@@ -47,6 +47,11 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
     // тег текущего рисунка
     private String tag;
 
+    private int save_index;
+
+    // новое имя или нет
+    private boolean is_new_name;
+
     // элементы для панели инструментов
     ColorItems color_items;
     DataItems data_items;
@@ -88,8 +93,6 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_canvas);
         canvas_state = Doings.NEW_CANVAS;
-        tag = PublicResources.EXTRA_DEFAULT_STRING_VALUE;
-        current_note = getIntent().getParcelableExtra(PublicResources.EXTRA_NOTE);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -118,10 +121,13 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
     private void getIntentFromNote() {
         catched_result_intent = getIntent();
         if (catched_result_intent != null) {
+            current_note = (NoteStructure) catched_result_intent
+                    .getSerializableExtra(PublicResources.EXTRA_NOTE);
             String action = catched_result_intent.getAction();
             if (action.equals(PublicResources.ACTION_EDIT_EXIST_CANVAS)) {
                 canvas_state = Doings.EXIST_CANVAS;
                 tag = catched_result_intent.getStringExtra(PublicResources.EXTRA_CANVAS_TAG);
+                is_new_name = false;
                 int index = catched_result_intent.getIntExtra(
                         PublicResources.EXTRA_DRAWING_TEMP_INDEX,
                         PublicResources.EXTRA_DEFAULT_INT_VALUE);
@@ -132,7 +138,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
                                 PublicResources.DEFAULT_BG_COLOR));
             }
             else {
-                tag = "";
+                tag = PublicResources.EXTRA_DEFAULT_STRING_VALUE;
             }
         }
     }
@@ -141,6 +147,9 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         // инициализация inflater
         res = getResources();
         inflater = getLayoutInflater();
+
+        is_new_name = true;
+        save_index = -1;
 
         color_items = new ColorItems(res);
         data_items = new DataItems(res);
@@ -468,11 +477,13 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
 
     private void forActivityResult() {
         Intent intent = new Intent();
+        if (draw_view.isCanvasEdit()) {
+            save();
+        }
+        intent.putExtra(PublicResources.EXTRA_NOTE, current_note);
         if (canvas_state == Doings.EXIST_CANVAS) {
             // если пользователь стёр содержимое холста
             intent.putExtra(PublicResources.EXTRA_CANVAS_IS_EMPTY, draw_view.isCanvasEmpty());
-            intent.putExtra(PublicResources.EXTRA_CANVAS_IS_EDIT, draw_view.isCanvasEdit());
-//            intent.putExtra(PublicResources.EXTRA_NOTE_TAG, tag);
             // получаем индекс из временного массива
             int temp_index = catched_result_intent
                     .getIntExtra(PublicResources.EXTRA_DRAWING_TEMP_INDEX,
@@ -502,30 +513,59 @@ public class CanvasActivity extends AppCompatActivity implements View.OnClickLis
         finish();
     }
 
+    public void save() {
+        try {
+            if (tag.equals(PublicResources.EXTRA_DEFAULT_STRING_VALUE)) {
+                tag = NoteSavings.getNewFileName(Doings.PNG);
+            }
+//            Log.d(PublicResources.DEBUG_LOG_TAG, "SAVE >>> " + tag);
+            if (!draw_view.isCanvasEmpty()) {
+                // добавление в массив
+                File file = PublicResources.createFile(tag, Doings.PNG);
+                DrawingStructure drawing = new DrawingStructure();
+                drawing.setDrawingBg(draw_view.getColor(Doings.BACKGROUND));
+                drawing.setDrawingFileName(tag);
+                ArrayList<DrawingStructure> drawings = current_note.getDrawings();
+                if (is_new_name) {
+                    drawings.add(drawing);
+                }
+                else {
+                    if (save_index < 0) {
+                        for (int i = 0; i < drawings.size(); ++i) {
+                            if (drawings.get(i).getDrawingFileName().equals(tag)) {
+                                drawings.set(i, drawing);
+                                save_index = i;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        drawings.set(save_index, drawing);
+                    }
+                }
+                current_note.setDrawings(drawings);
+                // добавление изображения в файл
+                Thread save_drawing = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        NoteSavings.saveNote(current_note);
+                        NoteSavings.saveOrReplaceDrawing(file, draw_view.getDrawing());
+                    }
+                });
+                save_drawing.start();
+            }
+            is_new_name = false;
+            draw_view.setIsEdit(false);
+        } catch (Exception e) {
+            Log.d(PublicResources.DEBUG_LOG_TAG, "SAVE EXCEPTION >>> " + e.getMessage());
+        }
+    }
+
     @Override
     protected void onStop() {
-//        if (tag.equals(PublicResources.EXTRA_DEFAULT_STRING_VALUE)) {
-//            tag = NoteSavings.getNewFileName(Doings.PNG);
-//        }
-//        if (draw_view.isCanvasEmpty()) {
-//            // добавление в массив
-//            File file = PublicResources.createFile(tag, Doings.PNG);
-//            DrawingStructure drawing = new DrawingStructure();
-//            drawing.setDrawingBg(draw_view.getColor(Doings.BACKGROUND));
-//            drawing.setDrawingFileName(tag);
-//            ArrayList<DrawingStructure> drawings = current_note.getDrawings();
-//            drawings.add(drawing);
-//            current_note.setDrawings(drawings);
-//            // добавление изображения в файл
-//            Thread save_drawing = new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    NoteSavings.saveOrReplaceDrawing(file, draw_view.getDrawing());
-//                    NoteSavings.saveNote(current_note);
-//                }
-//            });
-//            save_drawing.start();
-//        }
+        if (draw_view.isCanvasEdit()) {
+            save();
+        }
         super.onStop();
     }
 }

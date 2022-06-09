@@ -44,6 +44,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -59,6 +60,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView all_notes_view;
     // текущий попап
     private PopupMenu current_popup;
+
+    // для выхода
+    long exit_time;
+    Toast exit_toast;
 
     // notes popup listener
     PopupMenu.OnMenuItemClickListener popup_cl;
@@ -192,6 +197,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         PublicResources.device_height = dm.heightPixels;
         PublicResources.DP = dm.density;
 
+        exit_toast = Toast.makeText(MainActivity.this,
+                getResources().getString(R.string.exit),
+                Toast.LENGTH_SHORT);
+        exit_time = 0;
+
         // значение имени непустой заметки по умолчанию
         PublicResources.DEFAULT_NOTE_NAME = getResources()
                 .getString(R.string.default_not_empty_note_name);
@@ -317,16 +327,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.edit_note_btn) {
-//                    Toast.makeText(MainActivity.this,
-//                            "Редактировать: " + selected_card.getTag().toString(),
-//                            Toast.LENGTH_SHORT).show();
                     editNoteWithGetResult((View) selected_card);
                     return true;
                 }
                 if (menuItem.getItemId() == R.id.clip_note_btn) {
-//                    Toast.makeText(MainActivity.this,
-//                            "Закрепить/Открепить: " + selected_card.getTag().toString(),
-//                            Toast.LENGTH_SHORT).show();
                     // закрепить или открепить
                     String file_name = selected_card.getTag().toString();
                     for (int i = 0; i < notes.size(); ++i) {
@@ -344,9 +348,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (menuItem.getItemId() == R.id.delete_note_btn) {
                     String file_name = selected_card.getTag().toString();
                     noteDeletion(file_name);
-//                    Toast.makeText(MainActivity.this,
-//                            "Удалить: " + selected_card.getTag().toString(),
-//                            Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -477,11 +478,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        finish();
+        if (exit_time + 2000 > System.currentTimeMillis()) {
+            exit_toast.cancel();
+            finish();
+        }
+        exit_time = System.currentTimeMillis();
+        exit_toast.show();
     }
 
     @Override
     protected void onStop() {
+        exit_toast.cancel();
         super.onStop();
         if (current_popup != null) {
             current_popup.dismiss();
@@ -491,6 +498,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
+        exit_toast.cancel();
         super.onDestroy();
         if (current_popup != null) {
             current_popup.dismiss();

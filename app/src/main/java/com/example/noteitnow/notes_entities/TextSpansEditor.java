@@ -73,12 +73,12 @@ public class TextSpansEditor {
         boolean is_need_to_add_span = true;
         EditIndexes new_span_index = new EditIndexes(new_span.getStart(), new_span.getEnd());
 //        Log.d(PublicResources.DEBUG_LOG_TAG, "spans before edit >>> " + spans_size);
+        makeCleaning();
         for (int i = 0; i < spans.size(); ++i) {
             EditIndexes old_span_index =
                     new EditIndexes(spans.get(i).getStart(),spans.get(i).getEnd());
-            int state = UNKNOWN_STATE;
+            int state = getSpecialState(new_span_index, old_span_index);
             if (!isDataTypeEquals(new_span, spans.get(i))) {
-                state = getSpecialState(new_span_index, old_span_index);
                 // тут происходит особая обработка разнотипов
                 switch (new_span.getSpanType()) {
                     case NORMAL:
@@ -93,6 +93,9 @@ public class TextSpansEditor {
                                 if (spans_size > spans.size()) {
                                     --i;
                                 }
+                                else if (spans_size < spans.size()) {
+                                    ++i;
+                                }
                                 continue;
                             default:
                                 continue;
@@ -105,6 +108,9 @@ public class TextSpansEditor {
                         if (spans_size > spans.size()) {
                             --i;
                         }
+                        else if (spans_size < spans.size()) {
+                            ++i;
+                        }
                         continue;
                     default:
                         continue;
@@ -113,12 +119,14 @@ public class TextSpansEditor {
             // перебор возможных вариантов
             if (isDataEquals(new_span, spans.get(i))) {
                 // при одинаковых данных бывает удаление
-                state = getSpecialState(new_span_index, old_span_index);
                 if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
                     is_need_to_add_span = false;
                     temp_text = text;
                     if (spans_size > spans.size()) {
                         --i;
+                    }
+                    else if (spans_size < spans.size()) {
+                        ++i;
                     }
                 }
             }
@@ -127,7 +135,6 @@ public class TextSpansEditor {
                 switch (new_span.getSpanType()) {
                     case TEXT_BG:
                     case COLOR:
-                        state = getSpecialState(new_span_index, old_span_index);
 //                        Log.d(PublicResources.DEBUG_LOG_TAG, "STATE >>> " + state);
                         switch (state) {
                             case ALL:
@@ -312,6 +319,7 @@ public class TextSpansEditor {
             default:
                 is_need_to_redraw = false;
         }
+        Log.d(PublicResources.DEBUG_LOG_TAG, "FIX STATE >>> " + state);
         return is_need_to_redraw;
     }
 
@@ -413,6 +421,10 @@ public class TextSpansEditor {
 
     // состояния при одинаковых данных
     private int getSpecialState(EditIndexes new_edit_indexes, EditIndexes old_edit_indexes) {
+//        Log.d(PublicResources.DEBUG_LOG_TAG, "NEW >>> start: " + new_edit_indexes.getStart()
+//                + "; end: " + new_edit_indexes.getEnd());
+//        Log.d(PublicResources.DEBUG_LOG_TAG, "OLD >>> start: " + old_edit_indexes.getStart()
+//                + "; end: " + old_edit_indexes.getEnd());
         if (new_edit_indexes.getEnd() < old_edit_indexes.getStart()) {
             return BEFORE;
         }

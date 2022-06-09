@@ -30,6 +30,8 @@
     <string name="nav_header_subtitle">sofa.byk@mail.ru</string>
     <string name="all_notes">Всего заметок:\ </string>
 
+    <string name="exit">Нажмите ещё раз, чтобы выйти</string>
+
     <!-- месяцы -->
     <string name="january">Январь</string>
     <string name="february">Февраль</string>

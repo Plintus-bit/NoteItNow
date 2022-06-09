@@ -26,6 +26,9 @@ public class TextSpansEditor {
     private final static int START_INSIDE = 6;
     private final static int END_INSIDE = 7;
 
+    private int MAX_OPERATION_COUNT;
+    private int operation_count;
+
     // текущее количество span'ов
     private int spans_size;
 
@@ -72,11 +75,14 @@ public class TextSpansEditor {
         String temp_text = null;
         boolean is_need_to_add_span = true;
         EditIndexes new_span_index = new EditIndexes(new_span.getStart(), new_span.getEnd());
-//        Log.d(PublicResources.DEBUG_LOG_TAG, "spans before edit >>> " + spans_size);
+        Log.d(PublicResources.DEBUG_LOG_TAG, "spans before edit >>> " + spans_size);
         makeCleaning();
+        operation_count = 0;
+        MAX_OPERATION_COUNT = spans.size();
         for (int i = 0; i < spans.size(); ++i) {
             EditIndexes old_span_index =
                     new EditIndexes(spans.get(i).getStart(),spans.get(i).getEnd());
+            Log.d(PublicResources.DEBUG_LOG_TAG, "MAKING >>> " + String.valueOf(i));
             int state = getSpecialState(new_span_index, old_span_index);
             if (!isDataTypeEquals(new_span, spans.get(i))) {
                 // тут происходит особая обработка разнотипов
@@ -90,12 +96,7 @@ public class TextSpansEditor {
                                         new_span.getSpanType())) {
                                     temp_text = text;
                                 }
-                                if (spans_size > spans.size()) {
-                                    --i;
-                                }
-                                else if (spans_size < spans.size()) {
-                                    ++i;
-                                }
+                                i = makeEqualsOperation(i);
                                 continue;
                             default:
                                 continue;
@@ -105,12 +106,7 @@ public class TextSpansEditor {
                         if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
                             temp_text = text;
                         }
-                        if (spans_size > spans.size()) {
-                            --i;
-                        }
-                        else if (spans_size < spans.size()) {
-                            ++i;
-                        }
+                        i = makeEqualsOperation(i);
                         continue;
                     default:
                         continue;
@@ -122,12 +118,7 @@ public class TextSpansEditor {
                 if (fixSpecialSpan(new_span_index, i, state, new_span.getSpanType())) {
                     is_need_to_add_span = false;
                     temp_text = text;
-                    if (spans_size > spans.size()) {
-                        --i;
-                    }
-                    else if (spans_size < spans.size()) {
-                        ++i;
-                    }
+                    i = makeEqualsOperation(i);
                 }
             }
             else {
@@ -150,6 +141,9 @@ public class TextSpansEditor {
                         // nothing
                 }
             }
+            if (!isTryToGetMoreOperations()) {
+                break;
+            }
         }
 //        Log.d(PublicResources.DEBUG_LOG_TAG , "before delete: " + spans.size());
         if (index_for_delete.size() > 0) {
@@ -165,7 +159,31 @@ public class TextSpansEditor {
             return getSpannedString(temp_text);
         }
         spans_size = spans.size();
+        operation_count = 0;
         return null;
+    }
+
+    protected boolean isTryToGetMoreOperations() {
+        ++operation_count;
+        if (operation_count > MAX_OPERATION_COUNT) {
+            return false;
+        }
+        return true;
+    }
+
+    private int makeEqualsOperation(int i) {
+//        Log.d(PublicResources.DEBUG_LOG_TAG, "OLD index >>> " + String.valueOf(i));
+        if (spans_size > spans.size()) {
+//            Log.d(PublicResources.DEBUG_LOG_TAG, "NEW - index >>> " + String.valueOf(i));
+            spans_size = spans.size();
+            return --i;
+        }
+        else if (spans_size < spans.size()) {
+//            Log.d(PublicResources.DEBUG_LOG_TAG, "NEW + index >>> " + String.valueOf(i));
+            spans_size = spans.size();
+            return ++i;
+        }
+        return i;
     }
 
     private boolean isDataTypeEquals(TextSpans value_1, TextSpans value_2) {
